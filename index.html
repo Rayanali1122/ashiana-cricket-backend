@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ashiana Cricket</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#d32f2f">
     <style>
         :root {
             --primary-red: #d32f2f;
@@ -23,7 +25,6 @@
             color: var(--text-dark);
             padding-bottom: 90px;
         }
-        
         header {
             background: #ffffff;
             padding: 14px 18px;
@@ -47,12 +48,9 @@
             align-items: center;
             cursor: pointer;
         }
-
         .container {
             padding: 16px;
         }
-
-        /* Search Box */
         .search-box {
             display: flex;
             gap: 8px;
@@ -74,7 +72,6 @@
             font-weight: bold;
             cursor: pointer;
         }
-
         .card {
             background: white;
             border-radius: 16px;
@@ -82,8 +79,6 @@
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-
-        /* Modal / Popup for Login */
         .modal {
             display: none;
             position: fixed;
@@ -111,8 +106,6 @@
             margin-top: 10px;
             cursor: pointer;
         }
-
-        /* Floating Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 12px;
@@ -142,13 +135,11 @@
             color: var(--primary-red);
             font-weight: bold;
         }
-
         .section-page { display: none; }
         .section-page.active { display: block; }
     </style>
 </head>
 <body>
-
     <header>
         <div class="brand-title">ASHIANA CRICKET</div>
         <div class="header-icons">
@@ -158,14 +149,11 @@
     </header>
 
     <div class="container">
-
-        <!-- Search Bar (ID Search connected to Vercel API) -->
         <div class="search-box" id="search-bar" style="display: none;">
             <input type="number" id="search-id-input" class="search-input" placeholder="Search by 7-digit ID...">
             <button class="search-btn" onclick="performIDSearch()">Search</button>
         </div>
 
-        <!-- 1. FEED TAB -->
         <div id="tab-feed" class="section-page active">
             <div class="card">
                 <h3>Welcome to Ashiana Cricket</h3>
@@ -174,7 +162,6 @@
             </div>
         </div>
 
-        <!-- 2. ACCOUNT / PROFILE TAB -->
         <div id="tab-account" class="section-page">
             <div class="card">
                 <h3>User Profile</h3>
@@ -185,27 +172,21 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- Login/Signup Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <h3>Register Account</h3>
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Phone number ya Gmail enter karein.</p>
-            
             <label style="font-size: 12px; font-weight: bold;">Full Name:</label>
             <input type="text" id="reg-name" class="search-input" style="width: 100%; margin-bottom: 10px;" placeholder="Your Full Name">
-
             <label style="font-size: 12px; font-weight: bold;">Phone or Gmail:</label>
             <input type="text" id="reg-contact" class="search-input" style="width: 100%; margin-bottom: 10px;" placeholder="+923001234567 or email@gmail.com">
-
             <button class="btn-red" onclick="processSignup()">Create Account & Get ID</button>
             <button class="btn-red" style="background: #555; margin-top: 6px;" onclick="closeLoginModal()">Cancel</button>
         </div>
     </div>
 
-    <!-- Floating Bottom Navigation -->
     <div class="bottom-nav">
         <div class="nav-link active" onclick="switchNav('feed')" id="btn-feed">
             <div style="font-size:16px;">📰</div>
@@ -218,13 +199,11 @@
     </div>
 
     <script>
-        // Aapka Live Vercel Backend URL
-        const API_BASE_URL = "https://ashiana-cricket-backend.vercel.app";
+        const API_BASE_URL = window.location.origin;
 
         function switchNav(tabName) {
             document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-
             document.getElementById('tab-' + tabName).classList.add('active');
             document.getElementById('btn-' + tabName).classList.add('active');
         }
@@ -242,7 +221,6 @@
             document.getElementById('loginModal').style.display = 'none';
         }
 
-        // Register User via Live Backend API
         async function processSignup() {
             let name = document.getElementById('reg-name').value;
             let contact = document.getElementById('reg-contact').value;
@@ -266,18 +244,17 @@
                     document.getElementById('prof-id').innerText = data.user.userID;
                     document.getElementById('prof-contact').innerText = data.user.contact;
 
-                    alert("Account Created Successfully!\nYour Unique User ID is: " + data.user.userID);
+                    alert("Account Created Successfully! Your ID: " + data.user.userID);
                     closeLoginModal();
                     switchNav('account');
                 } else {
                     alert("Error: " + data.message);
                 }
             } catch (err) {
-                alert("Server connection failed! Check internet.");
+                alert("Server connection failed!");
             }
         }
 
-        // Search User by 7-Digit ID via Live Backend API
         async function performIDSearch() {
             let searchID = document.getElementById('search-id-input').value;
 
