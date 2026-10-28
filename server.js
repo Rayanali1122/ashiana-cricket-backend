@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,8 +12,17 @@ app.use(express.json());
 let usersDatabase = [];
 let otpStorage = {};
 
-// Send OTP API - Generates OTP and returns it directly to frontend alert
-app.post('/api/send-otp', (req, res) => {
+// Direct credentials setup (No need for Vercel Environment Variables)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'hmd127236@gmail.com',
+        pass: 'ASHIANACRICKET1234'
+    }
+});
+
+// Send Real OTP to Gmail or Phone
+app.post('/api/send-otp', async (req, res) => {
     const { contact, type } = req.body;
     
     if (!contact) {
@@ -22,11 +32,22 @@ app.post('/api/send-otp', (req, res) => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     otpStorage[contact] = otp;
 
-    res.json({ 
-        success: true, 
-        message: `OTP generated successfully for ${type === 'email' ? 'Gmail' : 'Phone'}!`, 
-        otp: otp 
-    });
+    if (type === 'email') {
+        try {
+            await transporter.sendMail({
+                from: 'Ashiana Cricket <hmd127236@gmail.com>',
+                to: contact,
+                subject: 'Ashiana Cricket Verification Code',
+                text: `Aapka Ashiana Cricket OTP code yeh hai: ${otp}`
+            });
+            return res.json({ success: true, message: "Real OTP sent to your Gmail successfully!" });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ success: false, message: "Failed to send email. Check SMTP settings." });
+        }
+    } else {
+        return res.json({ success: true, message: "OTP generated for phone!", otp: otp });
+    }
 });
 
 // Verify OTP & Register User
