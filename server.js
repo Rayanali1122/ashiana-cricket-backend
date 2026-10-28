@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,37 +9,76 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// In-memory database for users
 let usersDatabase = [];
+let otpStorage = {};
 
-// API: Register User & Generate 7-Digit ID
-app.post('/api/register', (req, res) => {
-    const { name, contact } = req.body;
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER || 'muhammadrayan172@gmail.com',
+        pass: process.env.EMAIL_PASS || 'yahan_app_password_likhein'
+    }
+});
+
+// Send OTP to Phone or Gmail based on user input
+app.post('/api/send-otp', async (req, res) => {
+    const { contact, type } = req.body; // type: 'phone' ya 'email'
     
-    if (!name || !contact) {
-        return res.status(400).json({ success: false, message: "Name and contact are required!" });
+    if (!contact) {
+        return res.status(400).json({ success: false, message: "Contact details are required!" });
     }
 
-    const uniqueID = Math.floor(1000000 + Math.random() * 9000000);
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    otpStorage[contact] = otp;
+
+    if (type === 'email') {
+        try {
+            await transporter.sendMail({
+                from: 'Ashiana Cricket <muhammadrayan172@gmail.com>',
+                to: contact,
+                subject: 'Ashiana Cricket Verification Code',
+                text: `Aapka Ashiana Cricket OTP code yeh hai: ${otp}`
+            });
+            return res.json({ success: true, message: "OTP sent to your Gmail successfully!" });
+        } catch (err) {
+            return res.status(500).json({ success: false, message: "Failed to send email OTP." });
+        }
+    } else {
+        // Phone number ke liye simulation / console log (ya agar SMS gateway lagana ho)
+        console.log(`Phone OTP for ${contact}: ${otp}`);
+        return res.json({ success: true, message: "OTP sent to your mobile number!", debugOtp: otp });
+    }
+});
+
+app.post('/api/verify-and-register', (req, res) => {
+    const { contact, otp, firstName, lastName } = req.body;
+
+    if (!otpStorage[contact] || otpStorage[contact] !== otp) {
+        return res.status(400).json({ success: false, message: "Invalid or expired OTP!" });
+    }
+
+    delete otpStorage[contact];
+
+    const uniqueID = Math.floor(1000000 + Math.random() * 9000000).toString();
 
     const newUser = {
-        userID: uniqueID.toString(),
-        name: name,
+        userID: uniqueID,
+        firstName: firstName,
+        lastName: lastName,
         contact: contact,
         verified: true,
         createdAt: new Date()
     };
 
     usersDatabase.push(newUser);
-    
+
     res.json({
-        success: new Date() && true,
-        message: "User registered successfully!",
+        success: true,
+        message: "Account created successfully!",
         user: newUser
     });
 });
 
-// API: Search User by 7-Digit ID
 app.get('/api/search/:id', (req, res) => {
     const searchID = req.params.id;
     const foundUser = usersDatabase.find(u => u.userID === searchID);
@@ -50,7 +90,6 @@ app.get('/api/search/:id', (req, res) => {
     }
 });
 
-// PWA Manifest Endpoint
 app.get('/manifest.json', (req, res) => {
     res.json({
         "name": "Ashiana Cricket",
@@ -74,7 +113,6 @@ app.get('/manifest.json', (req, res) => {
     });
 });
 
-// Serve frontend HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
