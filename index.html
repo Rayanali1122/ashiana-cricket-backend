@@ -1,58 +1,304 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashiana Cricket</title>
+    <style>
+        :root {
+            --primary-red: #d32f2f;
+            --bg-light: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-dark: #111827;
+            --text-muted: #6b7280;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 90px;
+        }
+        
+        header {
+            background: #ffffff;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .brand-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: #000;
+        }
+        .header-icons {
+            display: flex;
+            gap: 14px;
+            font-size: 18px;
+            align-items: center;
+            cursor: pointer;
+        }
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+        .container {
+            padding: 16px;
+        }
 
-app.use(cors());
-app.use(express.json());
+        /* Search Box */
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .search-btn {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-// In-memory database (Temporary setup, later MongoDB)
-let usersDatabase = [];
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
 
-// API ENDPOINT 1: Register User (Auto-Generates 7-Digit ID)
-// POST /api/register
-app.post('/api/register', (req, res) => {
-    const { name, contact } = req.body;
-    
-    if (!name || !contact) {
-        return res.status(400).json({ success: false, message: "Name and contact are required!" });
-    }
+        /* Modal / Popup for Login */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .btn-red {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+        }
 
-    // Auto-generate unique 7-digit ID (e.g., 5839201)
-    const uniqueID = Math.floor(1000000 + Math.random() * 9000000);
+        /* Floating Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            background: #ffffff;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            border: 1px solid #f0f0f0;
+            z-index: 1000;
+        }
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #6b7280;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .nav-link.active {
+            color: var(--primary-red);
+            font-weight: bold;
+        }
 
-    const newUser = {
-        userID: uniqueID.toString(),
-        name: name,
-        contact: contact,
-        verified: true,
-        scoreHistory: []
-    };
+        .section-page { display: none; }
+        .section-page.active { display: block; }
+    </style>
+</head>
+<body>
 
-    usersDatabase.push(newUser);
-    
-    res.json({
-        success: true,
-        message: "User registered with Ashiana Cricket!",
-        user: newUser
-    });
-});
+    <header>
+        <div class="brand-title">ASHIANA CRICKET</div>
+        <div class="header-icons">
+            <span onclick="toggleSearch()">🔍</span>
+            <span onclick="openLoginModal()">👤 Login</span>
+        </div>
+    </header>
 
-// API ENDPOINT 2: Search User by 7-Digit ID
-// GET /api/search/:id
-app.get('/api/search/:id', (req, res) => {
-    const searchID = req.params.id;
-    const foundUser = usersDatabase.find(u => u.userID === searchID);
+    <div class="container">
 
-    if (foundUser) {
-        res.json({ success: true, user: foundUser });
-    } else {
-        res.status(404).json({ success: false, message: `User with ID ${searchID} not found!` });
-    }
-});
+        <!-- Search Bar (ID Search connected to Vercel API) -->
+        <div class="search-box" id="search-bar" style="display: none;">
+            <input type="number" id="search-id-input" class="search-input" placeholder="Search by 7-digit ID...">
+            <button class="search-btn" onclick="performIDSearch()">Search</button>
+        </div>
 
-app.listen(PORT, () => {
-    console.log(`Ashiana Cricket Backend is running on port ${PORT}`);
-});
+        <!-- 1. FEED TAB -->
+        <div id="tab-feed" class="section-page active">
+            <div class="card">
+                <h3>Welcome to Ashiana Cricket</h3>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">Register karke apni unique 7-digit ID hasil karein.</p>
+                <button class="btn-red" onclick="openLoginModal()">Register / Login</button>
+            </div>
+        </div>
+
+        <!-- 2. ACCOUNT / PROFILE TAB -->
+        <div id="tab-account" class="section-page">
+            <div class="card">
+                <h3>User Profile</h3>
+                <div style="margin-top: 12px;" id="profile-details">
+                    <p><strong>Name:</strong> <span id="prof-name">Not Registered</span></p>
+                    <p><strong>User ID:</strong> <span id="prof-id" style="color: var(--primary-red); font-weight: bold;">-------</span></p>
+                    <p><strong>Contact:</strong> <span id="prof-contact">---</span></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h3>Register Account</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Phone number ya Gmail enter karein.</p>
+            
+            <label style="font-size: 12px; font-weight: bold;">Full Name:</label>
+            <input type="text" id="reg-name" class="search-input" style="width: 100%; margin-bottom: 10px;" placeholder="Your Full Name">
+
+            <label style="font-size: 12px; font-weight: bold;">Phone or Gmail:</label>
+            <input type="text" id="reg-contact" class="search-input" style="width: 100%; margin-bottom: 10px;" placeholder="+923001234567 or email@gmail.com">
+
+            <button class="btn-red" onclick="processSignup()">Create Account & Get ID</button>
+            <button class="btn-red" style="background: #555; margin-top: 6px;" onclick="closeLoginModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Floating Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-link active" onclick="switchNav('feed')" id="btn-feed">
+            <div style="font-size:16px;">📰</div>
+            <div>Feed</div>
+        </div>
+        <div class="nav-link" onclick="switchNav('account')" id="btn-account">
+            <div style="font-size:16px;">👤</div>
+            <div>Account</div>
+        </div>
+    </div>
+
+    <script>
+        // Aapka Live Vercel Backend URL
+        const API_BASE_URL = "https://ashiana-cricket-backend.vercel.app";
+
+        function switchNav(tabName) {
+            document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('btn-' + tabName).classList.add('active');
+        }
+
+        function toggleSearch() {
+            let sb = document.getElementById('search-bar');
+            sb.style.display = sb.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        // Register User via Live Backend API
+        async function processSignup() {
+            let name = document.getElementById('reg-name').value;
+            let contact = document.getElementById('reg-contact').value;
+
+            if(!name || !contact) {
+                alert("Please fill all details!");
+                return;
+            }
+
+            try {
+                let response = await fetch(`${API_BASE_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, contact })
+                });
+
+                let data = await response.json();
+
+                if(data.success) {
+                    document.getElementById('prof-name').innerText = data.user.name;
+                    document.getElementById('prof-id').innerText = data.user.userID;
+                    document.getElementById('prof-contact').innerText = data.user.contact;
+
+                    alert("Account Created Successfully!\nYour Unique User ID is: " + data.user.userID);
+                    closeLoginModal();
+                    switchNav('account');
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (err) {
+                alert("Server connection failed! Check internet.");
+            }
+        }
+
+        // Search User by 7-Digit ID via Live Backend API
+        async function performIDSearch() {
+            let searchID = document.getElementById('search-id-input').value;
+
+            if(!searchID || searchID.length !== 7) {
+                alert("Please enter a valid 7-digit ID!");
+                return;
+            }
+
+            try {
+                let response = await fetch(`${API_BASE_URL}/api/search/${searchID}`);
+                let data = await response.json();
+
+                if(data.success) {
+                    alert(`User Found!\nName: ${data.user.name}\nID: ${data.user.userID}\nContact: ${data.user.contact}`);
+                } else {
+                    alert("User not found with ID: " + searchID);
+                }
+            } catch (err) {
+                alert("Search failed. Server error.");
+            }
+        }
+    </script>
+</body>
+</html>
