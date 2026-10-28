@@ -19,7 +19,6 @@ app.post('/api/register', (req, res) => {
         return res.status(400).json({ success: false, message: "Name and contact are required!" });
     }
 
-    // Generate unique 7-digit ID (e.g., 1037719)
     const uniqueID = Math.floor(1000000 + Math.random() * 9000000);
 
     const newUser = {
@@ -51,10 +50,11 @@ app.get('/api/search/:id', (req, res) => {
     }
 });
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '.')));
+// Root URL par welcome message ya status dikhane ke liye
+app.get('/', (req, res) => {
+    res.send("Ashiana Cricket Backend Server is Running Perfectly!");
+});
 
 app.listen(PORT, () => {
     console.log(`Ashiana Cricket Server is running on port ${PORT}`);
 });
-  
