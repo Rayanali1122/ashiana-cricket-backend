@@ -11,7 +11,7 @@ app.use(express.json());
 let usersDatabase = [];
 let otpStorage = {};
 
-// Send OTP API (Works smoothly on Vercel without crashing)
+// Send OTP API - Generates OTP and returns it directly to frontend alert
 app.post('/api/send-otp', (req, res) => {
     const { contact, type } = req.body;
     
@@ -19,15 +19,12 @@ app.post('/api/send-otp', (req, res) => {
         return res.status(400).json({ success: false, message: "Contact details are required!" });
     }
 
-    // Generate a secure 4-digit OTP
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     otpStorage[contact] = otp;
 
-    // For testing and seamless usage, we return the OTP in the response 
-    // so the user can easily see and enter it in the app.
     res.json({ 
         success: true, 
-        message: `OTP sent successfully to ${type === 'email' ? 'Gmail' : 'Phone'}!`, 
+        message: `OTP generated successfully for ${type === 'email' ? 'Gmail' : 'Phone'}!`, 
         otp: otp 
     });
 });
