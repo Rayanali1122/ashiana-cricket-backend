@@ -57,11 +57,12 @@
             margin-bottom: 16px;
         }
         .search-input {
-            flex: 1;
+            width: 100%;
             padding: 10px 14px;
             border: 1px solid #d1d5db;
             border-radius: 10px;
             font-size: 14px;
+            margin-bottom: 12px;
         }
         .search-btn {
             background: var(--primary-red);
@@ -103,8 +104,21 @@
             border-radius: 10px;
             font-weight: bold;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 6px;
             cursor: pointer;
+        }
+        .step-section { display: none; }
+        .step-section.active { display: block; }
+        .choice-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-align: center;
         }
         .bottom-nav {
             position: fixed;
@@ -135,8 +149,6 @@
             color: var(--primary-red);
             font-weight: bold;
         }
-        .section-page { display: none; }
-        .section-page.active { display: block; }
     </style>
 </head>
 <body>
@@ -162,7 +174,7 @@
             </div>
         </div>
 
-        <div id="tab-account" class="section-page">
+        <div id="tab-account" class="section-page" style="display:none;">
             <div class="card">
                 <h3>User Profile</h3>
                 <div style="margin-top: 12px;" id="profile-details">
@@ -174,38 +186,82 @@
         </div>
     </div>
 
+    <!-- Registration Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
-            <h3>Register Account</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Phone number ya Gmail enter karein.</p>
-            <label style="font-size: 12px; font-weight: bold;">Full Name:</label>
-            <input type="text" id="reg-name" class="search-input" style="width: 100%; margin-bottom: 10px;" placeholder="Your Full Name">
-            <label style="font-size: 12px; font-weight: bold;">Phone or Gmail:</label>
-            <input type="text" id="reg-contact" class="search-input" style="width: 100%; margin-bottom: 10px;" placeholder="+923001234567 or email@gmail.com">
-            <button class="btn-red" onclick="processSignup()">Create Account & Get ID</button>
-            <button class="btn-red" style="background: #555; margin-top: 6px;" onclick="closeLoginModal()">Cancel</button>
-        </div>
-    </div>
+            <!-- Step 0: Choose Method (Phone or Gmail) -->
+            <div id="step-0" class="step-section active">
+                <h3>Register Account</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Aap kis ke zariye register karna chahte hain?</p>
+                <div class="choice-btn" onclick="selectMethod('phone')">📱 Phone Number</div>
+                <div class="choice-btn" onclick="selectMethod('email')">✉️ Gmail Account</div>
+                <button class="btn-red" style="background: #555;" onclick="closeLoginModal()">Cancel</button>
+            </div>
 
-    <div class="bottom-nav">
-        <div class="nav-link active" onclick="switchNav('feed')" id="btn-feed">
-            <div style="font-size:16px;">📰</div>
-            <div>Feed</div>
-        </div>
-        <div class="nav-link" onclick="switchNav('account')" id="btn-account">
-            <div style="font-size:16px;">👤</div>
-            <div>Account</div>
+            <!-- Step 1: Input Contact -->
+            <div id="step-1" class="step-section">
+                <h3 id="input-title">Enter Details</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" id="input-desc">Apni details enter karein.</p>
+                <input type="text" id="reg-contact" class="search-input" placeholder="">
+                <button class="btn-red" onclick="requestOTP()">Send OTP</button>
+                <button class="btn-red" style="background: #555;" onclick="showStep(0)">Back</button>
+            </div>
+
+            <!-- Step 2: Enter OTP -->
+            <div id="step-2" class="step-section">
+                <h3>Enter OTP Code</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Verification code enter karein.</p>
+                <input type="number" id="reg-otp" class="search-input" placeholder="Enter OTP">
+                <button class="btn-red" onclick="verifyOTPCode()">Verify OTP</button>
+            </div>
+
+            <!-- Step 3: First & Last Name -->
+            <div id="step-3" class="step-section">
+                <h3>Enter Your Name</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Apna first aur last name enter karein.</p>
+                <label style="font-size: 12px; font-weight: bold;">First Name:</label>
+                <input type="text" id="reg-firstname" class="search-input" placeholder="First Name">
+                <label style="font-size: 12px; font-weight: bold;">Last Name:</label>
+                <input type="text" id="reg-lastname" class="search-input" placeholder="Last Name">
+                <button class="btn-red" onclick="completeRegistration()">Finish & Get 7-Digit ID</button>
+            </div>
         </div>
     </div>
 
     <script>
         const API_BASE_URL = window.location.origin;
+        let savedContact = "";
+        let contactType = "";
 
-        function switchNav(tabName) {
-            document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-            document.getElementById('btn-' + tabName).classList.add('active');
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            showStep(0);
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function showStep(stepNum) {
+            document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + stepNum).classList.add('active');
+        }
+
+        function selectMethod(type) {
+            contactType = type;
+            let inputField = document.getElementById('reg-contact');
+            if(type === 'phone') {
+                document.getElementById('input-title').innerText = "Enter Phone Number";
+                document.getElementById('input-desc').innerText = "Jaise: +923098858061";
+                inputField.placeholder = "+923098858061";
+                inputField.type = "text";
+            } else {
+                document.getElementById('input-title').innerText = "Enter Gmail Address";
+                document.getElementById('input-desc').innerText = "Jaise: example@gmail.com";
+                inputField.placeholder = "example@gmail.com";
+                inputField.type = "email";
+            }
+            showStep(1);
         }
 
         function toggleSearch() {
@@ -213,67 +269,92 @@
             sb.style.display = sb.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function openLoginModal() {
-            document.getElementById('loginModal').style.display = 'flex';
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = 'none';
-        }
-
-        async function processSignup() {
-            let name = document.getElementById('reg-name').value;
-            let contact = document.getElementById('reg-contact').value;
-
-            if(!name || !contact) {
-                alert("Please fill all details!");
+        async function requestOTP() {
+            savedContact = document.getElementById('reg-contact').value;
+            if(!savedContact) {
+                alert("Please enter valid details!");
                 return;
             }
 
             try {
-                let response = await fetch(`${API_BASE_URL}/api/register`, {
+                let res = await fetch(`${API_BASE_URL}/api/send-otp`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, contact })
+                    body: JSON.stringify({ contact: savedContact, type: contactType })
                 });
-
-                let data = await response.json();
-
+                let data = await res.json();
                 if(data.success) {
-                    document.getElementById('prof-name').innerText = data.user.name;
-                    document.getElementById('prof-id').innerText = data.user.userID;
-                    document.getElementById('prof-contact').innerText = data.user.contact;
-
-                    alert("Account Created Successfully! Your ID: " + data.user.userID);
-                    closeLoginModal();
-                    switchNav('account');
+                    alert(data.message + (data.debugOtp ? " (Test OTP: " + data.debugOtp + ")" : ""));
+                    showStep(2);
                 } else {
                     alert("Error: " + data.message);
                 }
-            } catch (err) {
+            } catch(err) {
                 alert("Server connection failed!");
+            }
+        }
+
+        function verifyOTPCode() {
+            let otp = document.getElementById('reg-otp').value;
+            if(!otp || otp.length < 4) {
+                alert("Please enter a valid OTP!");
+                return;
+            }
+            showStep(3);
+        }
+
+        async function completeRegistration() {
+            let firstName = document.getElementById('reg-firstname').value;
+            let lastName = document.getElementById('reg-lastname').value;
+            let otp = document.getElementById('reg-otp').value;
+
+            if(!firstName || !lastName) {
+                alert("Please enter both First and Last Name!");
+                return;
+            }
+
+            try {
+                let res = await fetch(`${API_BASE_URL}/api/verify-and-register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact: savedContact, otp, firstName, lastName })
+                });
+                let data = await res.json();
+
+                if(data.success) {
+                    document.getElementById('prof-name').innerText = data.user.firstName + " " + data.user.lastName;
+                    document.getElementById('prof-id').innerText = data.user.userID;
+                    document.getElementById('prof-contact').innerText = data.user.contact;
+
+                    alert("Registration Successful! Your ID: " + data.user.userID);
+                    closeLoginModal();
+                    document.getElementById('tab-feed').style.display = 'none';
+                    document.getElementById('tab-account').style.display = 'block';
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch(err) {
+                alert("Registration failed!");
             }
         }
 
         async function performIDSearch() {
             let searchID = document.getElementById('search-id-input').value;
-
             if(!searchID || searchID.length !== 7) {
                 alert("Please enter a valid 7-digit ID!");
                 return;
             }
 
             try {
-                let response = await fetch(`${API_BASE_URL}/api/search/${searchID}`);
-                let data = await response.json();
-
+                let res = await fetch(`${API_BASE_URL}/api/search/${searchID}`);
+                let data = await res.json();
                 if(data.success) {
-                    alert(`User Found!\nName: ${data.user.name}\nID: ${data.user.userID}\nContact: ${data.user.contact}`);
+                    alert(`User Found!\nName: ${data.user.firstName} ${data.user.lastName}\nID: ${data.user.userID}\nContact: ${data.user.contact}`);
                 } else {
-                    alert("User not found with ID: " + searchID);
+                    alert("User not found!");
                 }
-            } catch (err) {
-                alert("Search failed. Server error.");
+            } catch(err) {
+                alert("Search failed.");
             }
         }
     </script>
