@@ -1,0 +1,58 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// In-memory database (Temporary setup, later MongoDB)
+let usersDatabase = [];
+
+// API ENDPOINT 1: Register User (Auto-Generates 7-Digit ID)
+// POST /api/register
+app.post('/api/register', (req, res) => {
+    const { name, contact } = req.body;
+    
+    if (!name || !contact) {
+        return res.status(400).json({ success: false, message: "Name and contact are required!" });
+    }
+
+    // Auto-generate unique 7-digit ID (e.g., 5839201)
+    const uniqueID = Math.floor(1000000 + Math.random() * 9000000);
+
+    const newUser = {
+        userID: uniqueID.toString(),
+        name: name,
+        contact: contact,
+        verified: true,
+        scoreHistory: []
+    };
+
+    usersDatabase.push(newUser);
+    
+    res.json({
+        success: true,
+        message: "User registered with Ashiana Cricket!",
+        user: newUser
+    });
+});
+
+// API ENDPOINT 2: Search User by 7-Digit ID
+// GET /api/search/:id
+app.get('/api/search/:id', (req, res) => {
+    const searchID = req.params.id;
+    const foundUser = usersDatabase.find(u => u.userID === searchID);
+
+    if (foundUser) {
+        res.json({ success: true, user: foundUser });
+    } else {
+        res.status(404).json({ success: false, message: `User with ID ${searchID} not found!` });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Ashiana Cricket Backend is running on port ${PORT}`);
+});
