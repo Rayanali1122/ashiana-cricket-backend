@@ -3,360 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashiana Cricket</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#d32f2f">
+    <title>Ashiana Cricket - Signup & OTP</title>
     <style>
-        :root {
-            --primary-red: #d32f2f;
-            --bg-light: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-dark: #111827;
-            --text-muted: #6b7280;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
         body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            padding-bottom: 90px;
-        }
-        header {
-            background: #ffffff;
-            padding: 14px 18px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .brand-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: #000;
-        }
-        .header-icons {
-            display: flex;
-            gap: 14px;
-            font-size: 18px;
-            align-items: center;
-            cursor: pointer;
-        }
-        .container {
-            padding: 16px;
-        }
-        .search-box {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .search-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-        .search-btn {
-            background: var(--primary-red);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        .modal-content {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            width: 90%;
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
             max-width: 400px;
         }
-        .btn-red {
-            background: var(--primary-red);
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 6px;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
         }
-        .step-section { display: none; }
-        .step-section.active { display: block; }
-        .choice-btn {
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            width: 100%;
-            margin-bottom: 10px;
-            cursor: pointer;
-            text-align: center;
+        button:hover {
+            background-color: #218838;
         }
-        .bottom-nav {
-            position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 92%;
-            background: #ffffff;
-            border-radius: 40px;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-            border: 1px solid #f0f0f0;
-            z-index: 1000;
-        }
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #6b7280;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .nav-link.active {
-            color: var(--primary-red);
-            font-weight: bold;
+        .hidden {
+            display: none;
         }
     </style>
+
+    <!-- EmailJS SDK CDN -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("YOUR_PUBLIC_KEY"); // Yahan apni EmailJS Public Key daal dein
+        })();
+    </script>
 </head>
 <body>
-    <header>
-        <div class="brand-title">ASHIANA CRICKET</div>
-        <div class="header-icons">
-            <span onclick="toggleSearch()">🔍</span>
-            <span onclick="openLoginModal()">👤 Login</span>
-        </div>
-    </header>
 
     <div class="container">
-        <div class="search-box" id="search-bar" style="display: none;">
-            <input type="number" id="search-id-input" class="search-input" placeholder="Search by 7-digit ID...">
-            <button class="search-btn" onclick="performIDSearch()">Search</button>
+        <h2>Ashiana Cricket Register</h2>
+        
+        <!-- Step 1: Signup Form -->
+        <div id="signupSection">
+            <div class="form-group">
+                <label>Apni Gmail Likhein:</label>
+                <input type="email5" id="userEmail" placeholder="example@gmail.com" required>
+            </div>
+            <button onclick="sendOTP()">Send OTP</button>
         </div>
 
-        <div id="tab-feed" class="section-page active">
-            <div class="card">
-                <h3>Welcome to Ashiana Cricket</h3>
-                <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">Register karke apni unique 7-digit ID hasil karein.</p>
-                <button class="btn-red" onclick="openLoginModal()">Register / Login</button>
-            </div>
-        </div>
-
-        <div id="tab-account" class="section-page" style="display:none;">
-            <div class="card">
-                <h3>User Profile</h3>
-                <div style="margin-top: 12px;" id="profile-details">
-                    <p><strong>Name:</strong> <span id="prof-name">Not Registered</span></p>
-                    <p><strong>User ID:</strong> <span id="prof-id" style="color: var(--primary-red); font-weight: bold;">-------</span></p>
-                    <p><strong>Contact:</strong> <span id="prof-contact">---</span></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Registration Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <!-- Step 0: Choose Method -->
-            <div id="step-0" class="step-section active">
-                <h3>Register Account</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Aap kis ke zariye register karna chahte hain?</p>
-                <div class="choice-btn" onclick="selectMethod('phone')">📱 Phone Number</div>
-                <div class="choice-btn" onclick="selectMethod('email')">✉️ Gmail Account</div>
-                <button class="btn-red" style="background: #555;" onclick="closeLoginModal()">Cancel</button>
-            </div>
-
-            <!-- Step 1: Input Contact -->
-            <div id="step-1" class="step-section">
-                <h3 id="input-title">Enter Details</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" id="input-desc">Apni details enter karein.</p>
-                <input type="text" id="reg-contact" class="search-input" placeholder="">
-                <button class="btn-red" onclick="requestOTP()">Send OTP</button>
-                <button class="btn-red" style="background: #555;" onclick="showStep(0)">Back</button>
-            </div>
-
-            <!-- Step 2: Enter OTP -->
-            <div id="step-2" class="step-section">
-                <h3>Enter OTP Code</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Screen par diye gaye OTP code ko yahan enter karein.</p>
-                <input type="number" id="reg-otp" class="search-input" placeholder="Enter OTP">
-                <button class="btn-red" onclick="verifyOTPCode()">Verify OTP</button>
-            </div>
-
-            <!-- Step 3: First & Last Name -->
-            <div id="step-3" class="step-section">
-                <h3>Enter Your Name</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Apna first aur last name enter karein.</p>
-                <label style="font-size: 12px; font-weight: bold;">First Name:</label>
-                <input type="text" id="reg-firstname" class="search-input" placeholder="First Name">
-                <label style="font-size: 12px; font-weight: bold;">Last Name:</label>
-                <input type="text" id="reg-lastname" class="search-input" placeholder="Last Name">
-                <button class="btn-red" onclick="completeRegistration()">Finish & Get 7-Digit ID</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const API_BASE_URL = window.location.origin;
-        let savedContact = "";
-        let contactType = "";
-
-        function openLoginModal() {
-            document.getElementById('loginModal').style.display = 'flex';
-            showStep(0);
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = 'none';
-        }
-
-        function showStep(stepNum) {
-            document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('step-' + stepNum).classList.add('active');
-        }
-
-        function selectMethod(type) {
-            contactType = type;
-            let inputField = document.getElementById('reg-contact');
-            if(type === 'phone') {
-                document.getElementById('input-title').innerText = "Enter Phone Number";
-                document.getElementById('input-desc').innerText = "Jaise: +923098858061";
-                inputField.placeholder = "+923098858061";
-                inputField.type = "text";
-            } else {
-                document.getElementById('input-title').innerText = "Enter Gmail Address";
-                document.getElementById('input-desc').innerText = "Jaise: example@gmail.com";
-                inputField.placeholder = "example@gmail.com";
-                inputField.type = "email";
-            }
-            showStep(1);
-        }
-
-        function toggleSearch() {
-            let sb = document.getElementById('search-bar');
-            sb.style.display = sb.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        async function requestOTP() {
-            savedContact = document.getElementById('reg-contact').value;
-            if(!savedContact) {
-                alert("Please enter valid details!");
-                return;
-            }
-
-            try {
-                let res = await fetch(`${API_BASE_URL}/api/send-otp`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contact: savedContact, type: contactType })
-                });
-                let data = await res.json();
-                if(data.success) {
-                    alert(`OTP Code: ${data.otp}`);
-                    showStep(2);
-                } else {
-                    alert("Error: " + data.message);
-                }
-            } catch(err) {
-                alert("Server connection failed!");
-            }
-        }
-
-        function verifyOTPCode() {
-            let otp = document.getElementById('reg-otp').value;
-            if(!otp || otp.length < 4) {
-                alert("Please enter a valid OTP!");
-                return;
-            }
-            showStep(3);
-        }
-
-        async function completeRegistration() {
-            let firstName = document.getElementById('reg-firstname').value;
-            let lastName = document.getElementById('reg-lastname').value;
-            let otp = document.getElementById('reg-otp').value;
-
-            if(!firstName || !lastName) {
-                alert("Please enter both First and Last Name!");
-                return;
-            }
-
-            try {
-                let res = await fetch(`${API_BASE_URL}/api/verify-and-register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contact: savedContact, otp, firstName, lastName })
-                });
-                let data = await res.json();
-
-                if(data.success) {
-                    document.getElementById('prof-name').innerText = data.user.firstName + " " + data.user.lastName;
-                    document.getElementById('prof-id').innerText = data.user.userID;
-                    document.getElementById('prof-contact').innerText = data.user.contact;
-
-                    alert("Registration Successful! Your ID: " + data.user.userID);
-                    closeLoginModal();
-                    document.getElementById('tab-feed').style.display = 'none';
-                    document.getElementById('tab-account').style.display = 'block';
-                } else {
-                    alert("Error: " + data.message);
-                }
-            } catch(err) {
-                alert("Registration failed!");
-            }
-        }
-
-        async function performIDSearch() {
-            let searchID = document.getElementById('search-id-input').value;
-            if(!searchID || searchID.length !== 7) {
-                alert("Please enter a valid 7-digit ID!");
-                return;
-            }
-
-            try {
-                let res = await fetch(`${API_BASE_URL}/api/search/${searchID}`);
-                let data = await res.json();
-                if(data.success) {
-                    alert(`User Found!\nName: ${data.user.firstName} ${data.user.lastName}\nID: ${data.user.userID}\nContact: ${data.user.contact}`);
-                } else {
-                    alert("User not found!");
-                }
-            } catch(err) {
-                alert("Search failed.");
-            }
-        }
-    </script>
-</body>
-</html>
+        <!-- Step 2: OTP Verification Box -->
+        <div id="otpSection" class="hidden">
+            <div class="form-group">
+                <label>OTP Code Darj
