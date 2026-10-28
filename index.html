@@ -25,6 +25,7 @@
         h2 {
             text-align: center;
             color: #333;
+            margin-top: 0;
         }
         .form-group {
             margin-bottom: 15px;
@@ -55,7 +56,7 @@
             background-color: #218838;
         }
         .hidden {
-            display: none;
+            display: none !important;
         }
     </style>
 
@@ -72,3 +73,67 @@
     <div class="container">
         <h2>Ashiana Cricket Register</h2>
         
+        <!-- Step 1: Signup Form -->
+        <div id="signupSection">
+            <div class="form-group">
+                <label>Apni Gmail Likhein:</label>
+                <input type="email" id="userEmail" placeholder="example@gmail.com" required>
+            </div>
+            <button type="button" onclick="sendOTP()">Send OTP</button>
+        </div>
+
+        <!-- Step 2: OTP Verification Box -->
+        <div id="otpSection" class="hidden">
+            <div class="form-group">
+                <label>OTP Code Darj Karein:</label>
+                <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP">
+            </div>
+            <button type="button" onclick="verifyOTP()">Verify OTP & Open Account</button>
+        </div>
+    </div>
+
+    <script>
+        let generatedOtpCode = "";
+        let targetEmail = "";
+
+        function sendOTP() {
+            targetEmail = document.getElementById("userEmail").value.trim();
+            if (!targetEmail) {
+                alert("Meherbani karke pehle apni valid Gmail likhein!");
+                return;
+            }
+
+            // 6 digit random OTP generate karna
+            generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            var templateParams = {
+                to_email: targetEmail,
+                otp: generatedOtpCode
+            };
+
+            // EmailJS ke zariye hmd127236@gmail.com se email bhejna
+            emailjs.send('service_dm0kmzg', 'template_jxznfzg', templateParams)
+                .then(function(response) {
+                    alert("OTP code aapki Gmail (" + targetEmail + ") par bhej diya gaya hai!");
+                    document.getElementById("signupSection").classList.add("hidden");
+                    document.getElementById("otpSection").classList.remove("hidden");
+                }, function(error) {
+                    console.log('FAILED...', error);
+                    alert("Email bhejne mein masla hua. Dobara koshish karein.");
+                });
+        }
+
+        function verifyOTP() {
+            let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
+
+            if (userEnteredOtp === generatedOtpCode) {
+                alert("Mubarak ho! Account kamyabi se open ho gaya hai.");
+                // Yahan aap user ko apne dashboard ya main page par bhej sakte hain
+            } else {
+                alert("Ghalat OTP code! Meherbani karke sahi code enter karein.");
+            }
+        }
+    </script>
+
+</body>
+</html>
