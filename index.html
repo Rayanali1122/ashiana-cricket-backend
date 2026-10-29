@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
-            padding-bottom: 70px; /* Space for bottom nav */
+            padding-bottom: 70px;
         }
         .container {
             background: #ffffff;
@@ -122,6 +122,27 @@
         .score {
             color: #333;
         }
+        
+        /* Account Info Styling */
+        .account-info-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .account-info-box label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .account-info-box p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
 
         /* Bottom Navigation Bar */
         .bottom-nav {
@@ -228,11 +249,10 @@
             <span id="userEmailDisplay" style="font-size: 13px; color: #555;"></span>
         </div>
 
-        <!-- TAB 1: FEED (Scrollable Match Scorecards) -->
+        <!-- TAB 1: FEED -->
         <div id="tabContent_feed" class="tab-pane">
             <h3 style="margin: 15px 5px; color: #333;">Sunday Match Feed</h3>
             
-            <!-- Feed Card 1 -->
             <div class="feed-card">
                 <div class="match-live-tag">● LIVE MATCH</div>
                 <div class="team-row">
@@ -245,7 +265,6 @@
                 </div>
             </div>
 
-            <!-- Feed Card 2 -->
             <div class="feed-card">
                 <div class="match-live-tag" style="color: #28a745;">✔ COMPLETED</div>
                 <div class="team-row">
@@ -255,19 +274,6 @@
                 <div class="team-row">
                     <span>ASHIANA XI</span>
                     <span class="score">162/3 (19.1 ov)</span>
-                </div>
-            </div>
-
-            <!-- Feed Card 3 -->
-            <div class="feed-card">
-                <div class="match-live-tag" style="color: #f0ad4e;">⏰ UPCOMING SUNDAY</div>
-                <div class="team-row">
-                    <span>TURBO XI</span>
-                    <span class="score">Sun, 5:45 AM</span>
-                </div>
-                <div class="team-row">
-                    <span>GOLDEN STAR</span>
-                    <span class="score">Ashiana Ground</span>
                 </div>
             </div>
         </div>
@@ -290,12 +296,35 @@
             </div>
         </div>
 
-        <!-- TAB 4: ACCOUNT -->
+        <!-- TAB 4: ACCOUNT (With Player ID & Search Feature) -->
         <div id="tabContent_account" class="tab-pane hidden">
-            <h3 style="margin: 15px 5px; color: #333;">Account Settings</h3>
-            <div class="feed-card" style="text-align: center;">
-                <p id="accEmailText" style="font-weight: bold; color: #444;"></p>
-                <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 15px;">Log Out</button>
+            <h3 style="margin: 15px 5px; color: #333;">My Account & Profile</h3>
+            
+            <div class="feed-card">
+                <!-- User Email Info -->
+                <div class="account-info-box">
+                    <label>Registered Gmail / Username</label>
+                    <p id="accEmailText">-</p>
+                </div>
+
+                <!-- Unique Player ID -->
+                <div class="account-info-box">
+                    <label>Unique Player ID (Code)</label>
+                    <p id="accPlayerCode" style="color: #28a745; letter-spacing: 1px;">-</p>
+                </div>
+
+                <!-- Search Player by Code Section -->
+                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <label style="font-weight: bold; color: #333; margin-bottom: 8px; display: block;">Search Player by ID Code:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="searchPlayerInput" placeholder="Enter Player Code (e.g. ASH-789)" style="padding: 10px; font-size: 14px;">
+                        <button type="button" class="btn" style="margin-top: 0; width: 100px;" onclick="searchPlayer()">Search</button>
+                    </div>
+                    <div id="searchResultBox" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: #0275d8;"></div>
+                </div>
+
+                <!-- Logout Button -->
+                <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
             </div>
         </div>
     </div>
@@ -399,55 +428,4 @@
                 return;
             }
 
-            localStorage.setItem("user_" + targetEmail, pass);
-            localStorage.setItem("activeUser", targetEmail);
-            
-            alert("Mubarak ho! Aapka account mukammal ban chuka hai.");
-            showDashboard(targetEmail);
-        }
-
-        function handleLogin() {
-            let emailInput = document.getElementById("loginEmail").value.trim();
-            let passInput = document.getElementById("loginPassword").value;
-
-            let savedPassword = localStorage.getItem("user_" + emailInput);
-
-            if (savedPassword && savedPassword === passInput) {
-                localStorage.setItem("activeUser", emailInput);
-                showDashboard(emailInput);
-            } else {
-                alert("Ghalat Email ya Password! Meherbani karke dobara koshish karein.");
-            }
-        }
-
-        function showDashboard(email) {
-            document.getElementById("authMainContainer").classList.add("hidden");
-            document.getElementById("appDashboard").classList.remove("hidden");
-            document.getElementById("bottomNav").classList.remove("hidden");
-            document.getElementById("userEmailDisplay").innerText = email;
-            document.getElementById("accEmailText").innerText = "Logged in as: " + email;
-        }
-
-        function switchAppTab(tabId, btnElement) {
-            // Hide all panes
-            let panes = document.querySelectorAll(".tab-pane");
-            panes.forEach(pane => pane.classList.add("hidden"));
-
-            // Show selected pane
-            document.getElementById("tabContent_" + tabId).classList.remove("hidden");
-
-            // Update active state on bottom nav buttons
-            let navItems = document.querySelectorAll(".nav-item");
-            navItems.forEach(item => item.classList.remove("active"));
-            btnElement.classList.add("active");
-        }
-
-        function handleLogout() {
-            localStorage.removeItem("activeUser");
-            sessionStorage.clear();
-            location.reload();
-        }
-    </script>
-
-</body>
-</html>
+            // Generate a unique player code based on email or
