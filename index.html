@@ -1,34 +1,90 @@
-        function sendOTP() {
-            try {
-                let targetEmail = document.getElementById("userEmail").value.trim();
-                if (!targetEmail) {
-                    alert("Meherbani karke pehle apni valid Gmail likhein!");
-                    return;
-                }
-
-                alert("OTP bheja ja raha hai, thoda intezaar karein...");
-
-                let generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                localStorage.setItem("targetEmail", targetEmail);
-                localStorage.setItem("generatedOtp", generatedOtpCode);
-
-                var templateParams = {
-                    to_email: targetEmail,
-                    email: targetEmail,
-                    otp: generatedOtpCode
-                };
-
-                emailjs.send('service_dm0kmzg', 'template_jxznfzg', templateParams)
-                    .then(function(response) {
-                        alert("OTP code aapki Gmail (" + targetEmail + ") par bhej diya gaya hai!");
-                        document.getElementById("step1_Email").classList.add("hidden");
-                        document.getElementById("step2_OTP").classList.remove("hidden");
-                    }, function(error) {
-                        console.log('FAILED...', error);
-                        alert("EmailJS Error: " + JSON.stringify(error));
-                    });
-            } catch (err) {
-                alert("JS Error: " + err.message);
-            }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashiana Cricket - App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding-bottom: 70px;
         }
+        .container {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 380px;
+            margin: 40px auto;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ccc;
+        }
+        .tab-buttons button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            color: #555;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tab-buttons button.active {
+            color: #28a745;
+            border-bottom: 3px solid #28a745;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        #appDashboard {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        .header-top {
+            
