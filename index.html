@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ashiana Cricket - App</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -60,7 +61,6 @@
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
             font-size: 16px;
         }
         .btn {
@@ -81,7 +81,7 @@
             display: none !important;
         }
 
-        /* App Dashboard & Feed Styles */
+        /* Dashboard Styles */
         #appDashboard {
             max-width: 450px;
             margin: 0 auto;
@@ -103,4 +103,339 @@
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .match-live-tag {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        .score {
+            color: #333;
+        }
+
+        /* Floating Bottom Bar */
+        .bottom-nav-container {
+            position: fixed;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .bottom-nav {
+            background: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 92%;
+            max-width: 420px;
+            padding: 10px 5px;
+            border-radius: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .nav-item {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            flex: 1;
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-item.active {
+            color: #a94442;
+            font-weight: bold;
+        }
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .account-info-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .account-info-box label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .account-info-box p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("WCD-b496wqtbygcZ7");
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- Auth Container -->
+    <div class="container" id="authMainContainer">
+        <div id="authContainer">
+            <h2>Ashiana Cricket</h2>
+
+            <div class="tab-buttons" id="tabButtons">
+                <button id="signupTabBtn" class="active" onclick="switchTab('signup')">Sign Up</button>
+                <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
+            </div>
+
+            <!-- SIGN UP FLOW -->
+            <div id="signupFlow">
+                <div id="step1_Email">
+                    <div class="form-group">
+                        <label>Apni Gmail Likhein:</label>
+                        <input type="email" id="userEmail" placeholder="example@gmail.com" required>
+                    </div>
+                    <button type="button" class="btn" onclick="sendOTP()">Send OTP</button>
+                </div>
+
+                <div id="step2_OTP" class="hidden">
+                    <div class="form-group">
+                        <label>Gmail par aaya 6-hinsoun ka OTP darj karein:</label>
+                        <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP" maxlength="6">
+                    </div>
+                    <button type="button" class="btn" onclick="verifyOTP()">Verify OTP</button>
+                </div>
+
+                <div id="step3_Password" class="hidden">
+                    <div class="form-group">
+                        <label>Naya Password Set Karein:</label>
+                        <input type="password" id="newPassword" placeholder="Enter Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password:</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="button" class="btn" onclick="completeAccountSetup()">Complete Account Setup</button>
+                </div>
+            </div>
+
+            <!-- SIGN IN FLOW -->
+            <div id="signinFlow" class="hidden">
+                <div class="form-group">
+                    <label>Gmail / Username:</label>
+                    <input type="email" id="loginEmail" placeholder="example@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="loginPassword" placeholder="Enter Password" required>
+                </div>
+                <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP DASHBOARD -->
+    <div id="appDashboard" class="hidden">
+        <div class="header-top">
+            <span>ASHIANA CRICKET</span>
+            <span id="userEmailDisplay" style="font-size: 13px; color: #555;"></span>
+        </div>
+
+        <!-- TAB 1: FEED -->
+        <div id="tabContent_feed" class="tab-pane">
+            <h3 style="margin: 15px 5px; color: #333;">Sunday Match Feed</h3>
+            
+            <div class="feed-card">
+                <div class="match-live-tag">● LIVE MATCH</div>
+                <div class="team-row">
+                    <span>NEW STAR XI</span>
+                    <span class="score">184/4 (18 ov)</span>
+                </div>
+                <div class="team-row">
+                    <span>Q-HEROS XI</span>
+                    <span class="score">Yet to bat</span>
+                </div>
+            </div>
+
+            <div class="feed-card">
+                <div class="match-live-tag" style="color: #28a745;">✔ COMPLETED</div>
+                <div class="team-row">
+                    <span>GAZA FIGHTERS</span>
+                    <span class="score">160/6 (20 ov)</span>
+                </div>
+                <div class="team-row">
+                    <span>ASHIANA XI</span>
+                    <span class="score">162/3 (19.1 ov)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: EXPLORE -->
+        <div id="tabContent_explore" class="tab-pane hidden">
+            <h3 style="margin: 15px 5px; color: #333;">Explore Tournaments</h3>
+            <div class="feed-card">
+                <h4>Lahore Champion Trophy</h4>
+                <p>Check out latest pool standings, match fixtures, and top run scorers.</p>
+            </div>
+        </div>
+
+        <!-- TAB 3: MY CRICKET -->
+        <div id="tabContent_mycricket" class="tab-pane hidden">
+            <h3 style="margin: 15px 5px; color: #333;">My Cricket Teams</h3>
+            <div class="feed-card">
+                <h4>New Star Team Management</h4>
+                <p>Manage your squad, batting lineup, and match schedules here.</p>
+            </div>
+        </div>
+
+        <!-- TAB 4: ACCOUNT -->
+        <div id="tabContent_account" class="tab-pane hidden">
+            <h3 style="margin: 15px 5px; color: #333;">My Account & Profile</h3>
+            
+            <div class="feed-card">
+                <div class="account-info-box">
+                    <label>Registered Gmail / Username</label>
+                    <p id="accEmailText">-</p>
+                </div>
+
+                <div class="account-info-box">
+                    <label>Unique Player ID (Code)</label>
+                    <p id="accPlayerCode" style="color: #28a745; letter-spacing: 1px;">-</p>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <label style="font-weight: bold; color: #333; margin-bottom: 8px; display: block;">Search Player by ID Code:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="searchPlayerInput" placeholder="Enter Player Code (e.g. ASH-789)" style="padding: 10px; font-size: 14px;">
+                        <button type="button" class="btn" style="margin-top: 0; width: 100px;" onclick="searchPlayer()">Search</button>
+                    </div>
+                    <div id="searchResultBox" style="margin-top: 10px; font-size: 14px; font-weight: bold;"></div>
+                </div>
+
+                <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING BOTTOM NAVIGATION BAR -->
+    <div class="bottom-nav-container hidden" id="bottomNav">
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchAppTab('feed', this)">
+                <span class="icon">📰</span> Feed
+            </button>
+            <button class="nav-item" onclick="switchAppTab('explore', this)">
+                <span class="icon">🧭</span> Explore
+            </button>
+            <button class="nav-item" onclick="switchAppTab('mycricket', this)">
+                <span class="icon">🏆</span> My Cricket
+            </button>
+            <button class="nav-item" onclick="switchAppTab('account', this)">
+                <span class="icon">👤</span> Account
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let activeUser = localStorage.getItem("activeUser");
+            if (activeUser) {
+                showDashboard(activeUser);
+            }
+        });
+
+        function switchTab(tabName) {
+            if (tabName === 'signup') {
+                document.getElementById("signupFlow").classList.remove("hidden");
+                document.getElementById("signinFlow").classList.add("hidden");
+                document.getElementById("signupTabBtn").classList.add("active");
+                document.getElementById("signinTabBtn").classList.remove("active");
+            } else {
+                document.getElementById("signupFlow").classList.add("hidden");
+                document.getElementById("signinFlow").classList.remove("hidden");
+                document.getElementById("signupTabBtn").classList.remove("active");
+                document.getElementById("signinTabBtn").classList.add("active");
+            }
+        }
+
+        function sendOTP() {
+            try {
+                let targetEmail = document.getElementById("userEmail").value.trim();
+                if (!targetEmail) {
+                    alert("Meherbani karke pehle apni valid Gmail likhein!");
+                    return;
+                }
+
+                let generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                sessionStorage.setItem("targetEmail", targetEmail);
+                sessionStorage.setItem("generatedOtp", generatedOtpCode);
+
+                var templateParams = {
+                    to_email: targetEmail,
+                    email: targetEmail,
+                    otp: generatedOtpCode
+                };
+
+                emailjs.send('service_dm0kmzg', 'template_jxznfzg', templateParams)
+                    .then(function(response) {
+                        alert("OTP code aapki Gmail (" + targetEmail + ") par bhej diya gaya hai!");
+                        document.getElementById("step1_Email").classList.add("hidden");
+                        document.getElementById("step2_OTP").classList.remove("hidden");
+                    }, function(error) {
+                        console.log('FAILED...', error);
+                        alert("EmailJS Error: " + JSON.stringify(error));
+                    });
+            } catch (err) {
+                alert("JS Error: " + err.message);
+            }
+        }
+
+        function verifyOTP() {
+            let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
+            let savedOtp = sessionStorage.getItem("generatedOtp");
+
+            if (userEnteredOtp === savedOtp) {
+                alert("OTP Kamyabi se verify ho gaya hai! Ab apna password set karein.");
+                document.getElementById("step2_OTP").classList.add("hidden");
+                document.getElementById("step3_Password").classList.remove("hidden");
+            } else {
+                alert("Ghalat OTP code! Meherbani karke sahi code enter karein.");
+            }
+        }
+
+        function completeAccountSetup() {
+            let pass = document.getElementById("newPassword").value;
+            let confirmPass = document.getElementById("confirmPassword").value;
+            let targetEmail = sessionStorage.getItem("targetEmail");
+
+            if (!pass || !confirmPass) {
+                alert("Meherbani karke dono password fields ko pur karein!");
+                return;
+            }
+
+            if (pass !== confirmPass) {
+                alert("Dono passwords aapas mein match nahi kar rahe!");
+                return;
+            }
+
+            let playerCode = "ASH-" + Math.floor(1000 + Math.random() * 9000);
+            
+            localStorage.setItem("user_" + targetEmail
