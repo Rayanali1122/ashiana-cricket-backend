@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashiana Cricket - Signup & OTP</title>
+    <title>Ashiana Cricket - Account Portal</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,8 +26,27 @@
             text-align: center;
             color: #333;
             margin-top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 22px;
+        }
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ccc;
+        }
+        .tab-buttons button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            color: #555;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tab-buttons button.active {
+            color: #28a745;
+            border-bottom: 3px solid #28a745;
         }
         .form-group {
             margin-bottom: 15px;
@@ -46,7 +65,7 @@
             box-sizing: border-box;
             font-size: 16px;
         }
-        button {
+        .btn {
             width: 100%;
             padding: 12px;
             background-color: #28a745;
@@ -57,7 +76,7 @@
             cursor: pointer;
             margin-top: 5px;
         }
-        button:hover {
+        .btn:hover {
             background-color: #218838;
         }
         .hidden {
@@ -69,31 +88,66 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
-            emailjs.init("WCD-b496wqtbygcZ7"); // Sahi Public Key set kar di gayi hai[span_1](start_span)[span_1](end_span)
+            emailjs.init("WCD-b496wqtbygcZ7"); // Aapki Public Key[span_0](start_span)[span_0](end_span)
         })();
     </script>
 </head>
 <body>
 
     <div class="container">
-        <h2>Ashiana Cricket Register</h2>
-        
-        <!-- Step 1: Signup Form -->
-        <div id="signupSection">
-            <div class="form-group">
-                <label>Apni Gmail Likhein:</label>
-                <input type="email" id="userEmail" placeholder="example@gmail.com" required>
-            </div>
-            <button type="button" onclick="sendOTP()">Send OTP</button>
+        <h2>Ashiana Cricket</h2>
+
+        <!-- Navigation Tabs for Signup & Signin -->
+        <div class="tab-buttons" id="tabButtons">
+            <button id="signupTabBtn" class="active" onclick="switchTab('signup')">Sign Up</button>
+            <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
         </div>
 
-        <!-- Step 2: OTP Verification Box -->
-        <div id="otpSection" class="hidden">
-            <div class="form-group">
-                <label>OTP Code Darj Karein:</label>
-                <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP">
+        <!-- ================= SIGN UP FLOW ================= -->
+        <div id="signupFlow">
+            <!-- Step 1: Gmail Form -->
+            <div id="step1_Email">
+                <div class="form-group">
+                    <label>Apni Gmail Likhein:</label>
+                    <input type="email" id="userEmail" placeholder="example@gmail.com" required>
+                </div>
+                <button type="button" class="btn" onclick="sendOTP()">Send OTP</button>
             </div>
-            <button type="button" onclick="verifyOTP()">Verify OTP & Open Account</button>
+
+            <!-- Step 2: OTP Form -->
+            <div id="step2_OTP" class="hidden">
+                <div class="form-group">
+                    <label>Gmail par aaya OTP Code darj karein:</label>
+                    <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP">
+                </div>
+                <button type="button" class="btn" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+
+            <!-- Step 3: Password Creation Form -->
+            <div id="step3_Password" class="hidden">
+                <div class="form-group">
+                    <label>Naya Password Set Karein:</label>
+                    <input type="password" id="newPassword" placeholder="Enter Password" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password:</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                </div>
+                <button type="button" class="btn" onclick="completeAccountSetup()">Complete Account Setup</button>
+            </div>
+        </div>
+
+        <!-- ================= SIGN IN FLOW ================= -->
+        <div id="signinFlow" class="hidden">
+            <div class="form-group">
+                <label>Gmail / Username:</label>
+                <input type="email" id="loginEmail" placeholder="example@gmail.com" required>
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="loginPassword" placeholder="Enter Password" required>
+            </div>
+            <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
         </div>
     </div>
 
@@ -101,6 +155,22 @@
         let generatedOtpCode = "";
         let targetEmail = "";
 
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            if (tabName === 'signup') {
+                document.getElementById("signupFlow").classList.remove("hidden");
+                document.getElementById("signinFlow").classList.add("hidden");
+                document.getElementById("signupTabBtn").classList.add("active");
+                document.getElementById("signinTabBtn").classList.remove("active");
+            } else {
+                document.getElementById("signupFlow").classList.add("hidden");
+                document.getElementById("signinFlow").classList.remove("hidden");
+                document.getElementById("signupTabBtn").classList.remove("active");
+                document.getElementById("signinTabBtn").classList.add("active");
+            }
+        }
+
+        // STEP 1: Send OTP to Email
         function sendOTP() {
             try {
                 targetEmail = document.getElementById("userEmail").value.trim();
@@ -109,20 +179,19 @@
                     return;
                 }
 
-                // 6 digit random OTP generate karna
                 generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
                 var templateParams = {
                     to_email: targetEmail,
+                    email: targetEmail,
                     otp: generatedOtpCode
                 };
 
-                // EmailJS ke zariye email bhejna
                 emailjs.send('service_dm0kmzg', 'template_jxznfzg', templateParams)
                     .then(function(response) {
                         alert("OTP code aapki Gmail (" + targetEmail + ") par bhej diya gaya hai!");
-                        document.getElementById("signupSection").classList.add("hidden");
-                        document.getElementById("otpSection").classList.remove("hidden");
+                        document.getElementById("step1_Email").classList.add("hidden");
+                        document.getElementById("step2_OTP").classList.remove("hidden");
                     }, function(error) {
                         console.log('FAILED...', error);
                         alert("EmailJS Error: " + JSON.stringify(error));
@@ -132,13 +201,56 @@
             }
         }
 
+        // STEP 2: Verify OTP
         function verifyOTP() {
             let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
 
             if (userEnteredOtp === generatedOtpCode) {
-                alert("Mubarak ho! Account kamyabi se open ho gaya hai.");
+                alert("OTP Kamyabi se verify ho gaya hai! Ab apna password set karein.");
+                document.getElementById("step2_OTP").classList.add("hidden");
+                document.getElementById("step3_Password").classList.remove("hidden");
             } else {
                 alert("Ghalat OTP code! Meherbani karke sahi code enter karein.");
+            }
+        }
+
+        // STEP 3: Set Password and Complete Setup
+        function completeAccountSetup() {
+            let pass = document.getElementById("newPassword").value;
+            let confirmPass = document.getElementById("confirmPassword").value;
+
+            if (!pass || !confirmPass) {
+                alert("Meherbani karke dono password fields ko pur karein!");
+                return;
+            }
+
+            if (pass !== confirmPass) {
+                alert("Dono passwords aapas mein match nahi kar rahe!");
+                return;
+            }
+
+            // User ki Details LocalStorage/Database mein save kar lena (Username = Email)
+            localStorage.setItem("user_" + targetEmail, pass);
+
+            alert("Mubarak ho! Aapka account mukammal ban chuka hai. Ab aap Sign In kar sakte hain.");
+            
+            // Password set hone ke baad user ko Sign In tab par bhej dena
+            switchTab('signin');
+            document.getElementById("loginEmail").value = targetEmail;
+        }
+
+        // SIGN IN FUNCTIONALITY
+        function handleLogin() {
+            let emailInput = document.getElementById("loginEmail").value.trim();
+            let passInput = document.getElementById("loginPassword").value;
+
+            let savedPassword = localStorage.getItem("user_" + emailInput);
+
+            if (savedPassword && savedPassword === passInput) {
+                alert("Welcome back! App mein login kamyab ho gaya hai.");
+                // Yahan user ko app ke main dashboard par redirect kar dein
+            } else {
+                alert("Ghalat Email ya Password! Meherbani karke dobara koshish karein.");
             }
         }
     </script>
