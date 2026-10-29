@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashiana Cricket - App</title>
+    <title>Ashiana Cricket - Account Portal</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding-bottom: 70px;
         }
         .container {
             background: #ffffff;
@@ -18,7 +21,6 @@
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             width: 90%;
             max-width: 380px;
-            margin: 40px auto;
         }
         h2 {
             text-align: center;
@@ -80,99 +82,12 @@
         .hidden {
             display: none !important;
         }
-
-        /* App Dashboard & Feed Styles */
         #appDashboard {
-            max-width: 450px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 10px 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            font-weight: bold;
-            font-size: 18px;
-            color: #111;
-        }
-        .feed-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .match-live-tag {
-            color: #d9534f;
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-        .team-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-        .score {
-            color: #333;
-        }
-        
-        /* Account Info Styling */
-        .account-info-box {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            text-align: left;
-        }
-        .account-info-box label {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 2px;
-        }
-        .account-info-box p {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* Bottom Navigation Bar */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #ffffff;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        .nav-item {
             text-align: center;
-            color: #777;
-            font-size: 12px;
-            cursor: pointer;
-            flex: 1;
-            background: none;
-            border: none;
         }
-        .nav-item.active {
+        #appDashboard h1 {
             color: #28a745;
-            font-weight: bold;
-        }
-        .nav-item div {
-            font-size: 18px;
-            margin-bottom: 2px;
+            font-size: 24px;
         }
     </style>
 
@@ -186,8 +101,8 @@
 </head>
 <body>
 
-    <!-- Auth Container (Signup / Signin) -->
-    <div class="container" id="authMainContainer">
+    <div class="container">
+        <!-- Auth Box -->
         <div id="authContainer">
             <h2>Ashiana Cricket</h2>
 
@@ -240,109 +155,13 @@
                 <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
             </div>
         </div>
-    </div>
 
-    <!-- ================= MAIN APP DASHBOARD ================= -->
-    <div id="appDashboard" class="hidden">
-        <div class="header-top">
-            <span>ASHIANA CRICKET</span>
-            <span id="userEmailDisplay" style="font-size: 13px; color: #555;"></span>
+        <!-- MAIN DASHBOARD -->
+        <div id="appDashboard" class="hidden">
+            <h1>Welcome to Ashiana Cricket!</h1>
+            <p>Aapka account kamyabi se khul gaya hai.</p>
+            <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
         </div>
-
-        <!-- TAB 1: FEED -->
-        <div id="tabContent_feed" class="tab-pane">
-            <h3 style="margin: 15px 5px; color: #333;">Sunday Match Feed</h3>
-            
-            <div class="feed-card">
-                <div class="match-live-tag">● LIVE MATCH</div>
-                <div class="team-row">
-                    <span>NEW STAR XI</span>
-                    <span class="score">184/4 (18 ov)</span>
-                </div>
-                <div class="team-row">
-                    <span>Q-HEROS XI</span>
-                    <span class="score">Yet to bat</span>
-                </div>
-            </div>
-
-            <div class="feed-card">
-                <div class="match-live-tag" style="color: #28a745;">✔ COMPLETED</div>
-                <div class="team-row">
-                    <span>GAZA FIGHTERS</span>
-                    <span class="score">160/6 (20 ov)</span>
-                </div>
-                <div class="team-row">
-                    <span>ASHIANA XI</span>
-                    <span class="score">162/3 (19.1 ov)</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: EXPLORE -->
-        <div id="tabContent_explore" class="tab-pane hidden">
-            <h3 style="margin: 15px 5px; color: #333;">Explore Tournaments</h3>
-            <div class="feed-card">
-                <h4>Lahore Champion Trophy</h4>
-                <p>Check out latest pool standings, match fixtures, and top run scorers.</p>
-            </div>
-        </div>
-
-        <!-- TAB 3: MY CRICKET -->
-        <div id="tabContent_mycricket" class="tab-pane hidden">
-            <h3 style="margin: 15px 5px; color: #333;">My Cricket Teams</h3>
-            <div class="feed-card">
-                <h4>New Star Team Management</h4>
-                <p>Manage your squad, batting lineup, and match schedules here.</p>
-            </div>
-        </div>
-
-        <!-- TAB 4: ACCOUNT (With Player ID & Search Feature) -->
-        <div id="tabContent_account" class="tab-pane hidden">
-            <h3 style="margin: 15px 5px; color: #333;">My Account & Profile</h3>
-            
-            <div class="feed-card">
-                <!-- User Email Info -->
-                <div class="account-info-box">
-                    <label>Registered Gmail / Username</label>
-                    <p id="accEmailText">-</p>
-                </div>
-
-                <!-- Unique Player ID -->
-                <div class="account-info-box">
-                    <label>Unique Player ID (Code)</label>
-                    <p id="accPlayerCode" style="color: #28a745; letter-spacing: 1px;">-</p>
-                </div>
-
-                <!-- Search Player by Code Section -->
-                <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <label style="font-weight: bold; color: #333; margin-bottom: 8px; display: block;">Search Player by ID Code:</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="searchPlayerInput" placeholder="Enter Player Code (e.g. ASH-789)" style="padding: 10px; font-size: 14px;">
-                        <button type="button" class="btn" style="margin-top: 0; width: 100px;" onclick="searchPlayer()">Search</button>
-                    </div>
-                    <div id="searchResultBox" style="margin-top: 10px; font-size: 14px; font-weight: bold; color: #0275d8;"></div>
-                </div>
-
-                <!-- Logout Button -->
-                <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= BOTTOM NAVIGATION BAR ================= -->
-    <div class="bottom-nav hidden" id="bottomNav">
-        <button class="nav-item active" onclick="switchAppTab('feed', this)">
-            <div>📰</div> Feed
-        </button>
-        <button class="nav-item" onclick="switchAppTab('explore', this)">
-            <div>🔍</div> Explore
-        </button>
-        <button class="nav-item" onclick="switchAppTab('mycricket', this)">
-            <div>🏆</div> My Cricket
-        </button>
-        <button class="nav-item" onclick="switchAppTab('account', this)">
-            <div>👤</div> Account
-        </button>
     </div>
 
     <script>
@@ -377,6 +196,7 @@
 
                 let generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
                 
+                // Save email and otp in session storage so it doesn't get lost
                 sessionStorage.setItem("targetEmail", targetEmail);
                 sessionStorage.setItem("generatedOtp", generatedOtpCode);
 
@@ -428,4 +248,38 @@
                 return;
             }
 
-            // Generate a unique player code based on email or
+            localStorage.setItem("user_" + targetEmail, pass);
+            localStorage.setItem("activeUser", targetEmail);
+            
+            alert("Mubarak ho! Aapka account mukammal ban chuka hai.");
+            showDashboard(targetEmail);
+        }
+
+        function handleLogin() {
+            let emailInput = document.getElementById("loginEmail").value.trim();
+            let passInput = document.getElementById("loginPassword").value;
+
+            let savedPassword = localStorage.getItem("user_" + emailInput);
+
+            if (savedPassword && savedPassword === passInput) {
+                localStorage.setItem("activeUser", emailInput);
+                showDashboard(emailInput);
+            } else {
+                alert("Ghalat Email ya Password! Meherbani karke dobara koshish karein.");
+            }
+        }
+
+        function showDashboard(email) {
+            document.getElementById("authContainer").classList.add("hidden");
+            document.getElementById("appDashboard").classList.remove("hidden");
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("activeUser");
+            sessionStorage.clear();
+            location.reload();
+        }
+    </script>
+
+</body>
+</html>
