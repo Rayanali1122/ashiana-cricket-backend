@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashiana Cricket - Account Portal</title>
+    <title>Ashiana Cricket - App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            padding-bottom: 70px; /* Space for bottom nav */
         }
         .container {
             background: #ffffff;
@@ -21,6 +18,7 @@
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             width: 90%;
             max-width: 380px;
+            margin: 40px auto;
         }
         h2 {
             text-align: center;
@@ -82,12 +80,78 @@
         .hidden {
             display: none !important;
         }
+
+        /* App Dashboard & Feed Styles */
         #appDashboard {
-            text-align: center;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 15px;
         }
-        #appDashboard h1 {
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-weight: bold;
+            font-size: 18px;
+            color: #111;
+        }
+        .feed-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .match-live-tag {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        .score {
+            color: #333;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+            cursor: pointer;
+            flex: 1;
+            background: none;
+            border: none;
+        }
+        .nav-item.active {
             color: #28a745;
-            font-size: 24px;
+            font-weight: bold;
+        }
+        .nav-item div {
+            font-size: 18px;
+            margin-bottom: 2px;
         }
     </style>
 
@@ -101,18 +165,17 @@
 </head>
 <body>
 
-    <div class="container">
-        <!-- Auth Box (Signup / Signin) -->
+    <!-- Auth Container (Signup / Signin) -->
+    <div class="container" id="authMainContainer">
         <div id="authContainer">
             <h2>Ashiana Cricket</h2>
 
-            <!-- Navigation Tabs -->
             <div class="tab-buttons" id="tabButtons">
                 <button id="signupTabBtn" class="active" onclick="switchTab('signup')">Sign Up</button>
                 <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
             </div>
 
-            <!-- ================= SIGN UP FLOW ================= -->
+            <!-- SIGN UP FLOW -->
             <div id="signupFlow">
                 <div id="step1_Email">
                     <div class="form-group">
@@ -143,7 +206,7 @@
                 </div>
             </div>
 
-            <!-- ================= SIGN IN FLOW ================= -->
+            <!-- SIGN IN FLOW -->
             <div id="signinFlow" class="hidden">
                 <div class="form-group">
                     <label>Gmail / Username:</label>
@@ -156,20 +219,104 @@
                 <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
             </div>
         </div>
+    </div>
 
-        <!-- ================= MAIN APP DASHBOARD (Hidden by default) ================= -->
-        <div id="appDashboard" class="hidden">
-            <h1>Welcome to Ashiana Cricket!</h1>
-            <p>Aapka account kamyabi se khul gaya hai.</p>
-            <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
+    <!-- ================= MAIN APP DASHBOARD ================= -->
+    <div id="appDashboard" class="hidden">
+        <div class="header-top">
+            <span>ASHIANA CRICKET</span>
+            <span id="userEmailDisplay" style="font-size: 13px; color: #555;"></span>
+        </div>
+
+        <!-- TAB 1: FEED (Scrollable Match Scorecards) -->
+        <div id="tabContent_feed" class="tab-pane">
+            <h3 style="margin: 15px 5px; color: #333;">Sunday Match Feed</h3>
+            
+            <!-- Feed Card 1 -->
+            <div class="feed-card">
+                <div class="match-live-tag">● LIVE MATCH</div>
+                <div class="team-row">
+                    <span>NEW STAR XI</span>
+                    <span class="score">184/4 (18 ov)</span>
+                </div>
+                <div class="team-row">
+                    <span>Q-HEROS XI</span>
+                    <span class="score">Yet to bat</span>
+                </div>
+            </div>
+
+            <!-- Feed Card 2 -->
+            <div class="feed-card">
+                <div class="match-live-tag" style="color: #28a745;">✔ COMPLETED</div>
+                <div class="team-row">
+                    <span>GAZA FIGHTERS</span>
+                    <span class="score">160/6 (20 ov)</span>
+                </div>
+                <div class="team-row">
+                    <span>ASHIANA XI</span>
+                    <span class="score">162/3 (19.1 ov)</span>
+                </div>
+            </div>
+
+            <!-- Feed Card 3 -->
+            <div class="feed-card">
+                <div class="match-live-tag" style="color: #f0ad4e;">⏰ UPCOMING SUNDAY</div>
+                <div class="team-row">
+                    <span>TURBO XI</span>
+                    <span class="score">Sun, 5:45 AM</span>
+                </div>
+                <div class="team-row">
+                    <span>GOLDEN STAR</span>
+                    <span class="score">Ashiana Ground</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: EXPLORE -->
+        <div id="tabContent_explore" class="tab-pane hidden">
+            <h3 style="margin: 15px 5px; color: #333;">Explore Tournaments</h3>
+            <div class="feed-card">
+                <h4>Lahore Champion Trophy</h4>
+                <p>Check out latest pool standings, match fixtures, and top run scorers.</p>
+            </div>
+        </div>
+
+        <!-- TAB 3: MY CRICKET -->
+        <div id="tabContent_mycricket" class="tab-pane hidden">
+            <h3 style="margin: 15px 5px; color: #333;">My Cricket Teams</h3>
+            <div class="feed-card">
+                <h4>New Star Team Management</h4>
+                <p>Manage your squad, batting lineup, and match schedules here.</p>
+            </div>
+        </div>
+
+        <!-- TAB 4: ACCOUNT -->
+        <div id="tabContent_account" class="tab-pane hidden">
+            <h3 style="margin: 15px 5px; color: #333;">Account Settings</h3>
+            <div class="feed-card" style="text-align: center;">
+                <p id="accEmailText" style="font-weight: bold; color: #444;"></p>
+                <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 15px;">Log Out</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        let generatedOtpCode = "";
-        let targetEmail = "";
+    <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+    <div class="bottom-nav hidden" id="bottomNav">
+        <button class="nav-item active" onclick="switchAppTab('feed', this)">
+            <div>📰</div> Feed
+        </button>
+        <button class="nav-item" onclick="switchAppTab('explore', this)">
+            <div>🔍</div> Explore
+        </button>
+        <button class="nav-item" onclick="switchAppTab('mycricket', this)">
+            <div>🏆</div> My Cricket
+        </button>
+        <button class="nav-item" onclick="switchAppTab('account', this)">
+            <div>👤</div> Account
+        </button>
+    </div>
 
-        // Check if user was already logged in
+    <script>
         window.onload = function() {
             let activeUser = localStorage.getItem("activeUser");
             if (activeUser) {
@@ -193,13 +340,16 @@
 
         function sendOTP() {
             try {
-                targetEmail = document.getElementById("userEmail").value.trim();
+                let targetEmail = document.getElementById("userEmail").value.trim();
                 if (!targetEmail) {
                     alert("Meherbani karke pehle apni valid Gmail likhein!");
                     return;
                 }
 
-                generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+                let generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                sessionStorage.setItem("targetEmail", targetEmail);
+                sessionStorage.setItem("generatedOtp", generatedOtpCode);
 
                 var templateParams = {
                     to_email: targetEmail,
@@ -223,8 +373,9 @@
 
         function verifyOTP() {
             let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
+            let savedOtp = sessionStorage.getItem("generatedOtp");
 
-            if (userEnteredOtp === generatedOtpCode) {
+            if (userEnteredOtp === savedOtp) {
                 alert("OTP Kamyabi se verify ho gaya hai! Ab apna password set karein.");
                 document.getElementById("step2_OTP").classList.add("hidden");
                 document.getElementById("step3_Password").classList.remove("hidden");
@@ -236,6 +387,7 @@
         function completeAccountSetup() {
             let pass = document.getElementById("newPassword").value;
             let confirmPass = document.getElementById("confirmPassword").value;
+            let targetEmail = sessionStorage.getItem("targetEmail");
 
             if (!pass || !confirmPass) {
                 alert("Meherbani karke dono password fields ko pur karein!");
@@ -269,12 +421,30 @@
         }
 
         function showDashboard(email) {
-            document.getElementById("authContainer").classList.add("hidden");
+            document.getElementById("authMainContainer").classList.add("hidden");
             document.getElementById("appDashboard").classList.remove("hidden");
+            document.getElementById("bottomNav").classList.remove("hidden");
+            document.getElementById("userEmailDisplay").innerText = email;
+            document.getElementById("accEmailText").innerText = "Logged in as: " + email;
+        }
+
+        function switchAppTab(tabId, btnElement) {
+            // Hide all panes
+            let panes = document.querySelectorAll(".tab-pane");
+            panes.forEach(pane => pane.classList.add("hidden"));
+
+            // Show selected pane
+            document.getElementById("tabContent_" + tabId).classList.remove("hidden");
+
+            // Update active state on bottom nav buttons
+            let navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach(item => item.classList.remove("active"));
+            btnElement.classList.add("active");
         }
 
         function handleLogout() {
             localStorage.removeItem("activeUser");
+            sessionStorage.clear();
             location.reload();
         }
     </script>
