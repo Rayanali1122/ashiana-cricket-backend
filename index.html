@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashiana Cricket - Account Portal</title>
+    <title>Ashiana Cricket - App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            padding-bottom: 90px;
         }
         .container {
             background: #ffffff;
@@ -21,6 +18,7 @@
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             width: 90%;
             max-width: 380px;
+            margin: 40px auto;
         }
         h2 {
             text-align: center;
@@ -82,204 +80,27 @@
         .hidden {
             display: none !important;
         }
+
+        /* App Dashboard & Feed Styles */
         #appDashboard {
-            text-align: center;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 15px;
         }
-        #appDashboard h1 {
-            color: #28a745;
-            font-size: 24px;
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-weight: bold;
+            font-size: 18px;
+            color: #111;
         }
-    </style>
-
-    <!-- EmailJS SDK CDN -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function() {
-            emailjs.init("WCD-b496wqtbygcZ7");
-        })();
-    </script>
-</head>
-<body>
-
-    <div class="container">
-        <!-- Auth Box -->
-        <div id="authContainer">
-            <h2>Ashiana Cricket</h2>
-
-            <div class="tab-buttons" id="tabButtons">
-                <button id="signupTabBtn" class="active" onclick="switchTab('signup')">Sign Up</button>
-                <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
-            </div>
-
-            <!-- SIGN UP FLOW -->
-            <div id="signupFlow">
-                <div id="step1_Email">
-                    <div class="form-group">
-                        <label>Apni Gmail Likhein:</label>
-                        <input type="email" id="userEmail" placeholder="example@gmail.com" required>
-                    </div>
-                    <button type="button" class="btn" onclick="sendOTP()">Send OTP</button>
-                </div>
-
-                <div id="step2_OTP" class="hidden">
-                    <div class="form-group">
-                        <label>Gmail par aaya 6-hinsoun ka OTP darj karein:</label>
-                        <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP" maxlength="6">
-                    </div>
-                    <button type="button" class="btn" onclick="verifyOTP()">Verify OTP</button>
-                </div>
-
-                <div id="step3_Password" class="hidden">
-                    <div class="form-group">
-                        <label>Naya Password Set Karein:</label>
-                        <input type="password" id="newPassword" placeholder="Enter Password" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm Password:</label>
-                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-                    </div>
-                    <button type="button" class="btn" onclick="completeAccountSetup()">Complete Account Setup</button>
-                </div>
-            </div>
-
-            <!-- SIGN IN FLOW -->
-            <div id="signinFlow" class="hidden">
-                <div class="form-group">
-                    <label>Gmail / Username:</label>
-                    <input type="email" id="loginEmail" placeholder="example@gmail.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Password:</label>
-                    <input type="password" id="loginPassword" placeholder="Enter Password" required>
-                </div>
-                <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
-            </div>
-        </div>
-
-        <!-- MAIN DASHBOARD -->
-        <div id="appDashboard" class="hidden">
-            <h1>Welcome to Ashiana Cricket!</h1>
-            <p>Aapka account kamyabi se khul gaya hai.</p>
-            <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
-        </div>
-    </div>
-
-    <script>
-        window.onload = function() {
-            let activeUser = localStorage.getItem("activeUser");
-            if (activeUser) {
-                showDashboard(activeUser);
-            }
-        };
-
-        function switchTab(tabName) {
-            if (tabName === 'signup') {
-                document.getElementById("signupFlow").classList.remove("hidden");
-                document.getElementById("signinFlow").classList.add("hidden");
-                document.getElementById("signupTabBtn").classList.add("active");
-                document.getElementById("signinTabBtn").classList.remove("active");
-            } else {
-                document.getElementById("signupFlow").classList.add("hidden");
-                document.getElementById("signinFlow").classList.remove("hidden");
-                document.getElementById("signupTabBtn").classList.remove("active");
-                document.getElementById("signinTabBtn").classList.add("active");
-            }
-        }
-
-        function sendOTP() {
-            try {
-                let targetEmail = document.getElementById("userEmail").value.trim();
-                if (!targetEmail) {
-                    alert("Meherbani karke pehle apni valid Gmail likhein!");
-                    return;
-                }
-
-                let generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                // Save email and otp in session storage so it doesn't get lost
-                sessionStorage.setItem("targetEmail", targetEmail);
-                sessionStorage.setItem("generatedOtp", generatedOtpCode);
-
-                var templateParams = {
-                    to_email: targetEmail,
-                    email: targetEmail,
-                    otp: generatedOtpCode
-                };
-
-                emailjs.send('service_dm0kmzg', 'template_jxznfzg', templateParams)
-                    .then(function(response) {
-                        alert("OTP code aapki Gmail (" + targetEmail + ") par bhej diya gaya hai!");
-                        document.getElementById("step1_Email").classList.add("hidden");
-                        document.getElementById("step2_OTP").classList.remove("hidden");
-                    }, function(error) {
-                        console.log('FAILED...', error);
-                        alert("EmailJS Error: " + JSON.stringify(error));
-                    });
-            } catch (err) {
-                alert("JS Error: " + err.message);
-            }
-        }
-
-        function verifyOTP() {
-            let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
-            let savedOtp = sessionStorage.getItem("generatedOtp");
-
-            if (userEnteredOtp === savedOtp) {
-                alert("OTP Kamyabi se verify ho gaya hai! Ab apna password set karein.");
-                document.getElementById("step2_OTP").classList.add("hidden");
-                document.getElementById("step3_Password").classList.remove("hidden");
-            } else {
-                alert("Ghalat OTP code! Meherbani karke sahi code enter karein.");
-            }
-        }
-
-        function completeAccountSetup() {
-            let pass = document.getElementById("newPassword").value;
-            let confirmPass = document.getElementById("confirmPassword").value;
-            let targetEmail = sessionStorage.getItem("targetEmail");
-
-            if (!pass || !confirmPass) {
-                alert("Meherbani karke dono password fields ko pur karein!");
-                return;
-            }
-
-            if (pass !== confirmPass) {
-                alert("Dono passwords aapas mein match nahi kar rahe!");
-                return;
-            }
-
-            localStorage.setItem("user_" + targetEmail, pass);
-            localStorage.setItem("activeUser", targetEmail);
-            
-            alert("Mubarak ho! Aapka account mukammal ban chuka hai.");
-            showDashboard(targetEmail);
-        }
-
-        function handleLogin() {
-            let emailInput = document.getElementById("loginEmail").value.trim();
-            let passInput = document.getElementById("loginPassword").value;
-
-            let savedPassword = localStorage.getItem("user_" + emailInput);
-
-            if (savedPassword && savedPassword === passInput) {
-                localStorage.setItem("activeUser", emailInput);
-                showDashboard(emailInput);
-            } else {
-                alert("Ghalat Email ya Password! Meherbani karke dobara koshish karein.");
-            }
-        }
-
-        function showDashboard(email) {
-            document.getElementById("authContainer").classList.add("hidden");
-            document.getElementById("appDashboard").classList.remove("hidden");
-        }
-
-        function handleLogout() {
-            localStorage.removeItem("activeUser");
-            sessionStorage.clear();
-            location.reload();
-        }
-    </script>
-
-</body>
-</html>
+        .feed-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,
