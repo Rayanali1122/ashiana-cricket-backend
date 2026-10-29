@@ -82,72 +82,86 @@
         .hidden {
             display: none !important;
         }
+        #appDashboard {
+            text-align: center;
+        }
+        #appDashboard h1 {
+            color: #28a745;
+            font-size: 24px;
+        }
     </style>
 
     <!-- EmailJS SDK CDN -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
-            emailjs.init("WCD-b496wqtbygcZ7"); // Aapki Public Key[span_0](start_span)[span_0](end_span)
+            emailjs.init("WCD-b496wqtbygcZ7");
         })();
     </script>
 </head>
 <body>
 
     <div class="container">
-        <h2>Ashiana Cricket</h2>
+        <!-- Auth Box (Signup / Signin) -->
+        <div id="authContainer">
+            <h2>Ashiana Cricket</h2>
 
-        <!-- Navigation Tabs for Signup & Signin -->
-        <div class="tab-buttons" id="tabButtons">
-            <button id="signupTabBtn" class="active" onclick="switchTab('signup')">Sign Up</button>
-            <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
+            <!-- Navigation Tabs -->
+            <div class="tab-buttons" id="tabButtons">
+                <button id="signupTabBtn" class="active" onclick="switchTab('signup')">Sign Up</button>
+                <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
+            </div>
+
+            <!-- ================= SIGN UP FLOW ================= -->
+            <div id="signupFlow">
+                <div id="step1_Email">
+                    <div class="form-group">
+                        <label>Apni Gmail Likhein:</label>
+                        <input type="email" id="userEmail" placeholder="example@gmail.com" required>
+                    </div>
+                    <button type="button" class="btn" onclick="sendOTP()">Send OTP</button>
+                </div>
+
+                <div id="step2_OTP" class="hidden">
+                    <div class="form-group">
+                        <label>Gmail par aaya 6-hinsoun ka OTP darj karein:</label>
+                        <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP" maxlength="6">
+                    </div>
+                    <button type="button" class="btn" onclick="verifyOTP()">Verify OTP</button>
+                </div>
+
+                <div id="step3_Password" class="hidden">
+                    <div class="form-group">
+                        <label>Naya Password Set Karein:</label>
+                        <input type="password" id="newPassword" placeholder="Enter Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password:</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="button" class="btn" onclick="completeAccountSetup()">Complete Account Setup</button>
+                </div>
+            </div>
+
+            <!-- ================= SIGN IN FLOW ================= -->
+            <div id="signinFlow" class="hidden">
+                <div class="form-group">
+                    <label>Gmail / Username:</label>
+                    <input type="email" id="loginEmail" placeholder="example@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="loginPassword" placeholder="Enter Password" required>
+                </div>
+                <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
+            </div>
         </div>
 
-        <!-- ================= SIGN UP FLOW ================= -->
-        <div id="signupFlow">
-            <!-- Step 1: Gmail Form -->
-            <div id="step1_Email">
-                <div class="form-group">
-                    <label>Apni Gmail Likhein:</label>
-                    <input type="email" id="userEmail" placeholder="example@gmail.com" required>
-                </div>
-                <button type="button" class="btn" onclick="sendOTP()">Send OTP</button>
-            </div>
-
-            <!-- Step 2: OTP Form -->
-            <div id="step2_OTP" class="hidden">
-                <div class="form-group">
-                    <label>Gmail par aaya OTP Code darj karein:</label>
-                    <input type="text" id="enteredOtp" placeholder="Enter 6-digit OTP">
-                </div>
-                <button type="button" class="btn" onclick="verifyOTP()">Verify OTP</button>
-            </div>
-
-            <!-- Step 3: Password Creation Form -->
-            <div id="step3_Password" class="hidden">
-                <div class="form-group">
-                    <label>Naya Password Set Karein:</label>
-                    <input type="password" id="newPassword" placeholder="Enter Password" required>
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password:</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-                </div>
-                <button type="button" class="btn" onclick="completeAccountSetup()">Complete Account Setup</button>
-            </div>
-        </div>
-
-        <!-- ================= SIGN IN FLOW ================= -->
-        <div id="signinFlow" class="hidden">
-            <div class="form-group">
-                <label>Gmail / Username:</label>
-                <input type="email" id="loginEmail" placeholder="example@gmail.com" required>
-            </div>
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" id="loginPassword" placeholder="Enter Password" required>
-            </div>
-            <button type="button" class="btn" onclick="handleLogin()">Sign In</button>
+        <!-- ================= MAIN APP DASHBOARD (Hidden by default) ================= -->
+        <div id="appDashboard" class="hidden">
+            <h1>Welcome to Ashiana Cricket!</h1>
+            <p>Aapka account kamyabi se khul gaya hai.</p>
+            <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
         </div>
     </div>
 
@@ -155,7 +169,14 @@
         let generatedOtpCode = "";
         let targetEmail = "";
 
-        // Tab Switching Logic
+        // Check if user was already logged in
+        window.onload = function() {
+            let activeUser = localStorage.getItem("activeUser");
+            if (activeUser) {
+                showDashboard(activeUser);
+            }
+        };
+
         function switchTab(tabName) {
             if (tabName === 'signup') {
                 document.getElementById("signupFlow").classList.remove("hidden");
@@ -170,7 +191,6 @@
             }
         }
 
-        // STEP 1: Send OTP to Email
         function sendOTP() {
             try {
                 targetEmail = document.getElementById("userEmail").value.trim();
@@ -201,7 +221,6 @@
             }
         }
 
-        // STEP 2: Verify OTP
         function verifyOTP() {
             let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
 
@@ -214,7 +233,6 @@
             }
         }
 
-        // STEP 3: Set Password and Complete Setup
         function completeAccountSetup() {
             let pass = document.getElementById("newPassword").value;
             let confirmPass = document.getElementById("confirmPassword").value;
@@ -229,17 +247,13 @@
                 return;
             }
 
-            // User ki Details LocalStorage/Database mein save kar lena (Username = Email)
             localStorage.setItem("user_" + targetEmail, pass);
-
-            alert("Mubarak ho! Aapka account mukammal ban chuka hai. Ab aap Sign In kar sakte hain.");
+            localStorage.setItem("activeUser", targetEmail);
             
-            // Password set hone ke baad user ko Sign In tab par bhej dena
-            switchTab('signin');
-            document.getElementById("loginEmail").value = targetEmail;
+            alert("Mubarak ho! Aapka account mukammal ban chuka hai.");
+            showDashboard(targetEmail);
         }
 
-        // SIGN IN FUNCTIONALITY
         function handleLogin() {
             let emailInput = document.getElementById("loginEmail").value.trim();
             let passInput = document.getElementById("loginPassword").value;
@@ -247,11 +261,21 @@
             let savedPassword = localStorage.getItem("user_" + emailInput);
 
             if (savedPassword && savedPassword === passInput) {
-                alert("Welcome back! App mein login kamyab ho gaya hai.");
-                // Yahan user ko app ke main dashboard par redirect kar dein
+                localStorage.setItem("activeUser", emailInput);
+                showDashboard(emailInput);
             } else {
                 alert("Ghalat Email ya Password! Meherbani karke dobara koshish karein.");
             }
+        }
+
+        function showDashboard(email) {
+            document.getElementById("authContainer").classList.add("hidden");
+            document.getElementById("appDashboard").classList.remove("hidden");
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("activeUser");
+            location.reload();
         }
     </script>
 
