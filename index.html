@@ -181,6 +181,75 @@
             font-size: 18px;
             margin-bottom: 2px;
         }
+
+        /* Modal Overlays for Header Icons */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 450px;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            padding: 20px;
+            box-sizing: border-box;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .search-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .search-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+        .search-tab-btn {
+            background: #f1f1f1;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+            white-space: nowrap;
+        }
+        .search-tab-btn.active {
+            background: #d9534f;
+            color: white;
+        }
+        .create-option-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+        .create-option-item span:first-child {
+            font-size: 20px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 50%;
+        }
     </style>
 
     <!-- EmailJS SDK CDN -->
@@ -254,9 +323,9 @@
         <div class="header-top">
             <span>CRICKPRO</span>
             <div class="header-icons">
-                <span>🔍</span>
-                <span>➕</span>
-                <span>🔔</span>
+                <span onclick="openSearchModal()">🔍</span>
+                <span onclick="openCreateModal()">➕</span>
+                <span onclick="openNotificationModal()">🔔</span>
             </div>
         </div>
 
@@ -331,6 +400,13 @@
         <button class="nav-item" onclick="switchAppTab('account', this)">
             <div>👤</div> Account
         </button>
+    </div>
+
+    <!-- MODAL CONTAINER FOR HEADER ICON ACTIONS -->
+    <div id="dynamicModal" class="modal-overlay hidden" onclick="closeModalOnOutside(event)">
+        <div class="modal-content" id="modalBody">
+            <!-- Dynamic content injected via JS -->
+        </div>
     </div>
 
     <script>
@@ -495,6 +571,88 @@
             localStorage.removeItem("activeUser");
             sessionStorage.clear();
             location.reload();
+        }
+
+        /* Functions for Search, Create & Notification Modals */
+        function openSearchModal() {
+            let modal = document.getElementById("dynamicModal");
+            let body = document.getElementById("modalBody");
+            body.innerHTML = `
+                <div class="search-header">
+                    <span style="cursor: pointer; font-size: 18px;" onclick="closeModal()">❮</span>
+                    <input type="text" placeholder="Search tournaments, teams, players, leagues" style="padding: 10px; font-size: 14px; margin-bottom: 0;">
+                </div>
+                <div class="search-tabs">
+                    <button class="search-tab-btn active">Tournaments</button>
+                    <button class="search-tab-btn">Teams</button>
+                    <button class="search-tab-btn">Players</button>
+                    <button class="search-tab-btn">Leagues</button>
+                </div>
+                <div style="font-weight: bold; margin: 15px 0 10px 0; color: #333;">POPULAR</div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Aioc Flood light</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Gorkhana</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Master apl tournament</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Aijaz</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Mehran pacer</span> <span>↗</span></div>
+                </div>
+            `;
+            modal.classList.remove("hidden");
+        }
+
+        function openCreateModal() {
+            let modal = document.getElementById("dynamicModal");
+            let body = document.getElementById("modalBody");
+            body.innerHTML = `
+                <h3 style="margin-top: 0; color: #333; text-align: center;">Create</h3>
+                <div class="create-option-item" onclick="alert('Create a Match clicked')">
+                    <span>💵</span>
+                    <div style="flex: 1;">Create a Match</div>
+                    <span>›</span>
+                </div>
+                <div class="create-option-item" onclick="alert('Create Tournament clicked')">
+                    <span>🏆</span>
+                    <div style="flex: 1;">Create Tournament</div>
+                    <span>›</span>
+                </div>
+                <div class="create-option-item" onclick="alert('Create Team clicked')">
+                    <span>👥</span>
+                    <div style="flex: 1;">Create Team</div>
+                    <span>›</span>
+                </div>
+                <div class="create-option-item" onclick="alert('Create Organization clicked')">
+                    <span>🏢</span>
+                    <div style="flex: 1;">Create Organization <div style="font-size: 11px; color: #888; font-weight: normal;">League / Club</div></div>
+                    <span>›</span>
+                </div>
+                <button class="btn" style="background: #f1f1f1; color: #333; margin-top: 20px;" onclick="closeModal()">Cancel</button>
+            `;
+            modal.classList.remove("hidden");
+        }
+
+        function openNotificationModal() {
+            let modal = document.getElementById("dynamicModal");
+            let body = document.getElementById("modalBody");
+            body.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #333;">Notifications</h3>
+                    <span style="cursor: pointer; color: #d9534f; font-size: 14px; font-weight: bold;" onclick="closeModal()">Close</span>
+                </div>
+                <div style="text-align: center; color: #777; padding: 30px 10px;">
+                    <p style="font-size: 15px; margin: 0;">Aapke paas koi nayi notification nahi hai.</p>
+                </div>
+            `;
+            modal.classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("dynamicModal").classList.add("hidden");
+        }
+
+        function closeModalOnOutside(event) {
+            if (event.target.id === "dynamicModal") {
+                closeModal();
+            }
         }
     </script>
 
