@@ -55,13 +55,14 @@
             color: #666;
             font-size: 14px;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 16px;
+            background: #fff;
         }
         .btn {
             width: 100%;
@@ -194,7 +195,7 @@
             margin-bottom: 2px;
         }
 
-        /* Modal Overlays for Header Icons */
+        /* Modal Overlays for Header Icons & Match Creation */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -215,7 +216,7 @@
             border-top-right-radius: 16px;
             padding: 20px;
             box-sizing: border-box;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
         .search-header {
@@ -261,6 +262,32 @@
             background: #f8f9fa;
             padding: 10px;
             border-radius: 50%;
+        }
+        .select-team-box {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .team-select-card {
+            text-align: center;
+            cursor: pointer;
+            flex: 1;
+        }
+        .team-select-circle {
+            width: 50px;
+            height: 50px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 5px auto;
+            font-size: 20px;
+            color: #555;
         }
     </style>
 
@@ -585,7 +612,7 @@
             location.reload();
         }
 
-        /* Functions for Search, Create & Notification Modals */
+        /* Functions for Search, Create, Notifications & Create Match Flow */
         function openSearchModal() {
             let modal = document.getElementById("dynamicModal");
             let body = document.getElementById("modalBody");
@@ -617,7 +644,7 @@
             let body = document.getElementById("modalBody");
             body.innerHTML = `
                 <h3 style="margin-top: 0; color: #333; text-align: center;">Create</h3>
-                <div class="create-option-item" onclick="alert('Create a Match clicked')">
+                <div class="create-option-item" onclick="openCreateMatchForm()">
                     <span>💵</span>
                     <div style="flex: 1;">Create a Match</div>
                     <span>›</span>
@@ -655,6 +682,197 @@
                 </div>
             `;
             modal.classList.remove("hidden");
+        }
+
+        function openCreateMatchForm() {
+            let modal = document.getElementById("dynamicModal");
+            let body = document.getElementById("modalBody");
+            body.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <span style="cursor: pointer; font-size: 18px;" onclick="openCreateModal()">❮</span>
+                    <h3 style="margin: 0; color: #333;">Create Match</h3>
+                </div>
+                
+                <div class="select-team-box">
+                    <div class="team-select-card" onclick="selectTeam('A')">
+                        <div class="team-select-circle">+</div>
+                        <div style="font-size: 12px; font-weight: bold; color: #333;" id="selectedTeamA_label">TEAM A</div>
+                        <div style="font-size: 11px; color: #888;">Tap to select · TBD</div>
+                    </div>
+                    <div style="font-weight: bold; color: #888; font-size: 14px;">VS</div>
+                    <div class="team-select-card" onclick="selectTeam('B')">
+                        <div class="team-select-circle">+</div>
+                        <div style="font-size: 12px; font-weight: bold; color: #333;" id="selectedTeamB_label">TEAM B</div>
+                        <div style="font-size: 11px; color: #888;">Tap to select · TBD</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px; font-weight: bold; color: #333; font-size: 14px;">Info</div>
+                
+                <div class="form-group">
+                    <label>MATCH FORMAT</label>
+                    <select>
+                        <option>Limited Overs</option>
+                        <option>Test Match</option>
+                        <option>Pairs</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>OVERS</label>
+                    <input type="number" value="20">
+                </div>
+
+                <div class="form-group">
+                    <label>MATCH TYPE</label>
+                    <select>
+                        <option>Individual Match</option>
+                        <option>Tournament Match</option>
+                    </select>
+                </div>
+
+                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Schedule</div>
+                <div class="form-group">
+                    <label>DATE & TIME</label>
+                    <input type="text" value="Oct 31, 2026, 11:00 AM" readonly>
+                </div>
+
+                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Venue</div>
+                <div class="form-group">
+                    <label>GROUND</label>
+                    <select>
+                        <option>Choose Ground (e.g. Ashiana Ground)</option>
+                        <option>5 LDA City Rd</option>
+                        <option>Ashiana-e-Quaid Housing Scheme</option>
+                        <option>Al-Bilal Cricket Club</option>
+                        <option>Ali's House</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>PITCH TYPE</label>
+                    <select>
+                        <option>Astroturf</option>
+                        <option>Matting</option>
+                        <option>Concrete</option>
+                        <option>Turf</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>BALL TYPE</label>
+                    <select>
+                        <option>Leather</option>
+                        <option>Tape Ball</option>
+                        <option>Tennis Ball</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>POWERPLAY</label>
+                    <select>
+                        <option>1 Selected</option>
+                        <option>2 Selected</option>
+                    </select>
+                </div>
+
+                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Officials</div>
+                <div class="form-group">
+                    <label>MATCH OFFICIALS</label>
+                    <select>
+                        <option>Choose Officials</option>
+                    </select>
+                </div>
+
+                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Advanced</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                    <span style="font-size: 14px; color: #333; font-weight: bold;">Advanced Settings</span>
+                    <input type="checkbox" id="advToggle" style="width: 20px; height: 20px; accent-color: #d9534f;" onchange="toggleAdvanced(this)">
+                </div>
+
+                <div id="advancedFields" class="hidden">
+                    <div class="form-group">
+                        <label>BALLS PER OVER</label>
+                        <input type="number" value="6">
+                    </div>
+                    <div class="form-group">
+                        <label>WICKETS PER INNINGS</label>
+                        <select>
+                            <option>10 wickets</option>
+                            <option>3 wickets</option>
+                            <option>4 wickets</option>
+                            <option>5 wickets</option>
+                            <option>6 wickets</option>
+                            <option>7 wickets</option>
+                            <option>8 wickets</option>
+                            <option>9 wickets</option>
+                            <option>11 wickets</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn" style="background: #f1f1f1; color: #333; margin-top: 0;" onclick="closeModal()">Schedule</button>
+                    <button class="btn" style="margin-top: 0;" onclick="alert('Match Started Successfully!')">Start Now</button>
+                </div>
+            `;
+        }
+
+        function selectTeam(teamType) {
+            let body = document.getElementById("modalBody");
+            if (teamType === 'A') {
+                body.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <span style="cursor: pointer; font-size: 18px;" onclick="openCreateMatchForm()">❮</span>
+                        <h3 style="margin: 0; color: #333;">Select Team A</h3>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                        <button class="search-tab-btn active" style="flex: 1;">My Teams</button>
+                        <button class="search-tab-btn" style="flex: 1; background: #fff;" onclick="alert('Opponents tab')">Opponents</button>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="setTeamName('A', 'NEW STAR')">
+                        <span style="font-size: 20px;">🛡️</span>
+                        <div style="font-weight: bold; color: #333;">NEW STAR</div>
+                    </div>
+                `;
+            } else {
+                body.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <span style="cursor: pointer; font-size: 18px;" onclick="openCreateMatchForm()">❮</span>
+                        <h3 style="margin: 0; color: #333;">Select Team B</h3>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                        <button class="search-tab-btn" style="flex: 1; background: #fff;" onclick="alert('My Teams tab')">My Teams</button>
+                        <button class="search-tab-btn active" style="flex: 1;">Opponents</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'STRIKER FORCE II')">STRIKER FORCE II</div>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'GHAZI XI')">GHAZI XI</div>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'QLANDER HEROS')">QLANDER HEROS</div>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'VICTORIOUS CRICKET CLUB')">VICTORIOUS CRICKET CLUB</div>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'KOTLAKHPAT TITANS')">KOTLAKHPAT TITANS</div>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'GAZA FIGHTERS')">GAZA FIGHTERS</div>
+                    </div>
+                `;
+            }
+        }
+
+        function setTeamName(teamType, name) {
+            openCreateMatchForm();
+            if (teamType === 'A') {
+                document.getElementById("selectedTeamA_label").innerText = name;
+            } else {
+                document.getElementById("selectedTeamB_label").innerText = name;
+            }
+        }
+
+        function toggleAdvanced(checkbox) {
+            let advFields = document.getElementById("advancedFields");
+            if (checkbox.checked) {
+                advFields.classList.remove("hidden");
+            } else {
+                advFields.classList.add("hidden");
+            }
         }
 
         function closeModal() {
