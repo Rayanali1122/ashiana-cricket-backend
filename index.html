@@ -368,11 +368,13 @@
             </div>
         </div>
 
-        <!-- TAB 1: FEED (Empty as requested) -->
+        <!-- TAB 1: FEED (Live matches feed updated dynamically) -->
         <div id="tabContent_feed" class="tab-pane">
-            <div class="feed-card" style="text-align: center; color: #777; padding: 40px 20px;">
-                <h4 style="margin: 0 0 5px 0; color: #333;">No Matches Live</h4>
-                <p style="font-size: 14px; margin: 0;">Aapka feed bilkul khali hai. Naye matches yahan show honge.</p>
+            <div id="liveMatchFeedContainer">
+                <div class="feed-card" style="text-align: center; color: #777; padding: 40px 20px;" id="noMatchCard">
+                    <h4 style="margin: 0 0 5px 0; color: #333;">No Matches Live</h4>
+                    <p style="font-size: 14px; margin: 0;">Aapka feed bilkul khali hai. Naye matches yahan show honge.</p>
+                </div>
             </div>
         </div>
 
@@ -711,7 +713,7 @@
                 
                 <div class="form-group">
                     <label>MATCH FORMAT</label>
-                    <select>
+                    <select id="matchFormat">
                         <option>Limited Overs</option>
                         <option>Test Match</option>
                         <option>Pairs</option>
@@ -720,12 +722,12 @@
 
                 <div class="form-group">
                     <label>OVERS</label>
-                    <input type="number" value="20">
+                    <input type="number" id="matchOvers" value="20">
                 </div>
 
                 <div class="form-group">
                     <label>MATCH TYPE</label>
-                    <select>
+                    <select id="matchType">
                         <option>Individual Match</option>
                         <option>Tournament Match</option>
                     </select>
@@ -740,7 +742,7 @@
                 <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Venue</div>
                 <div class="form-group">
                     <label>GROUND</label>
-                    <select>
+                    <select id="matchGround">
                         <option>Choose Ground (e.g. Ashiana Ground)</option>
                         <option>5 LDA City Rd</option>
                         <option>Ashiana-e-Quaid Housing Scheme</option>
@@ -751,7 +753,7 @@
 
                 <div class="form-group">
                     <label>PITCH TYPE</label>
-                    <select>
+                    <select id="matchPitch">
                         <option>Astroturf</option>
                         <option>Matting</option>
                         <option>Concrete</option>
@@ -761,7 +763,7 @@
 
                 <div class="form-group">
                     <label>BALL TYPE</label>
-                    <select>
+                    <select id="matchBall">
                         <option>Leather</option>
                         <option>Tape Ball</option>
                         <option>Tennis Ball</option>
@@ -793,11 +795,11 @@
                 <div id="advancedFields" class="hidden">
                     <div class="form-group">
                         <label>BALLS PER OVER</label>
-                        <input type="number" value="6">
+                        <input type="number" id="ballsPerOver" value="6">
                     </div>
                     <div class="form-group">
                         <label>WICKETS PER INNINGS</label>
-                        <select>
+                        <select id="wicketsPerInnings">
                             <option>10 wickets</option>
                             <option>3 wickets</option>
                             <option>4 wickets</option>
@@ -813,10 +815,12 @@
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn" style="background: #f1f1f1; color: #333; margin-top: 0;" onclick="closeModal()">Schedule</button>
-                    <button class="btn" style="margin-top: 0;" onclick="alert('Match Started Successfully!')">Start Now</button>
+                    <button class="btn" style="margin-top: 0;" onclick="startTossFlow()">Start Now</button>
                 </div>
             `;
         }
+
+        let currentMatchData = { teamA: 'TEAM A', teamB: 'TEAM B', overs: 20 };
 
         function selectTeam(teamType) {
             let body = document.getElementById("modalBody");
@@ -858,6 +862,11 @@
         }
 
         function setTeamName(teamType, name) {
+            if (teamType === 'A') {
+                currentMatchData.teamA = name;
+            } else {
+                currentMatchData.teamB = name;
+            }
             openCreateMatchForm();
             if (teamType === 'A') {
                 document.getElementById("selectedTeamA_label").innerText = name;
@@ -873,6 +882,170 @@
             } else {
                 advFields.classList.add("hidden");
             }
+        }
+
+        function startTossFlow() {
+            let tA = currentMatchData.teamA;
+            let tB = currentMatchData.teamB;
+            currentMatchData.overs = document.getElementById("matchOvers").value || 20;
+
+            if (tA === 'TEAM A' || tB === 'TEAM B') {
+                alert("Meherbani karke Team A aur Team B dono select karein!");
+                return;
+            }
+
+            let modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = `
+                <h3 style="text-align: center; color: #333;">Toss & Election</h3>
+                <p style="text-align: center; color: #666; font-size: 14px;">Kounsi team ne toss jeeta hai?</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn" style="background: #333; margin-top:0;" onclick="setTossWinner('${tA}')">${tA}</button>
+                    <button class="btn" style="background: #333; margin-top:0;" onclick="setTossWinner('${tB}')">${tB}</button>
+                </div>
+                <div id="electedDecisionBox" class="hidden">
+                    <p style="text-align: center; color: #666; font-size: 14px;" id="tossWinnerLabel"></p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" style="margin-top:0;" onclick="launchLiveScoring('Batting')">Batting</button>
+                        <button class="btn" style="background: #333; margin-top:0;" onclick="launchLiveScoring('Bowling')">Bowling</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let tossWinnerTeam = '';
+        function setTossWinner(winnerName) {
+            tossWinnerTeam = winnerName;
+            document.getElementById("tossWinnerLabel").innerText = winnerName + " ne toss jeet kar kya faisla kiya?";
+            document.getElementById("electedDecisionBox").classList.remove("hidden");
+        }
+
+        let liveMatchState = {
+            battingTeam: '',
+            bowlingTeam: '',
+            runs: 0,
+            wickets: 0,
+            balls: 0,
+            overs: 0,
+            maxOvers: 20
+        };
+
+        function launchLiveScoring(decision) {
+            let tA = currentMatchData.teamA;
+            let tB = currentMatchData.teamB;
+
+            if (decision === 'Batting') {
+                liveMatchState.battingTeam = tossWinnerTeam;
+                liveMatchState.bowlingTeam = (tossWinnerTeam === tA) ? tB : tA;
+            } else {
+                liveMatchState.bowlingTeam = tossWinnerTeam;
+                liveMatchState.battingTeam = (tossWinnerTeam === tA) ? tB : tA;
+            }
+
+            liveMatchState.maxOvers = parseInt(currentMatchData.overs);
+            liveMatchState.runs = 0;
+            liveMatchState.wickets = 0;
+            liveMatchState.balls = 0;
+            liveMatchState.overs = 0;
+
+            closeModal();
+            renderLiveFeedCard();
+            openScoringDashboard();
+        }
+
+        function renderLiveFeedCard() {
+            let container = document.getElementById("liveMatchFeedContainer");
+            let noMatchCard = document.getElementById("noMatchCard");
+            if (noMatchCard) noMatchCard.remove();
+
+            container.innerHTML = `
+                <div class="feed-card" style="border-left: 4px solid #d9534f; cursor: pointer;" onclick="openScoringDashboard()">
+                    <div class="match-live-tag">● LIVE MATCH</div>
+                    <div class="team-row">
+                        <span>${liveMatchState.battingTeam}</span>
+                        <span class="score" id="feedScoreDisplay">${liveMatchState.runs}-${liveMatchState.wickets} <span style="font-size: 13px; color:#666;">(${Math.floor(liveMatchState.balls/6)}.${liveMatchState.balls%6} ov)</span></span>
+                    </div>
+                    <div class="team-row" style="color: #666; font-size: 14px;">
+                        <span>vs ${liveMatchState.bowlingTeam}</span>
+                        <span style="font-size: 12px; color: #d9534f;">Tap to score ›</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openScoringDashboard() {
+            let modal = document.getElementById("dynamicModal");
+            let body = document.getElementById("modalBody");
+            
+            body.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-weight: bold; color: #d9534f;">● LIVE SCORING</span>
+                    <span style="cursor: pointer; font-size: 18px; font-weight: bold;" onclick="closeModal()">✕</span>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #333;" id="scoreCardBattingTeam">${liveMatchState.battingTeam}</h3>
+                    <h1 style="margin: 5px 0; font-size: 36px; color: #d9534f;" id="scoreCardRuns">${liveMatchState.runs}-${liveMatchState.wickets}</h1>
+                    <p style="margin: 0; color: #666; font-size: 14px;" id="scoreCardOvers">Overs: ${Math.floor(liveMatchState.balls/6)}.${liveMatchState.balls%6} / ${liveMatchState.maxOvers}</p>
+                </div>
+
+                <div style="font-weight: bold; color: #333; margin-bottom: 8px; text-align: center;">Ball-by-Ball Control Panel</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(0)">0</button>
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(1)">1</button>
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(2)">2</button>
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(3)">3</button>
+                    <button class="btn" style="margin-top:0; background:#d9534f;" onclick="addScore(4)">4 (Boundary)</button>
+                    <button class="btn" style="margin-top:0; background:#d9534f;" onclick="addScore(6)">6 (Six)</button>
+                    <button class="btn" style="margin-top:0; background:#f0ad4e;" onclick="addWide()">Wide</button>
+                    <button class="btn" style="margin-top:0; background:#f0ad4e;" onclick="addNoBall()">No Ball</button>
+                </div>
+
+                <button class="btn" style="background: #dc3545; margin-bottom: 10px;" onclick="addWicket()">Wicket Fallen ☝️</button>
+                <button class="btn" style="background: #f1f1f1; color: #333;" onclick="closeModal()">Minimize Scoring</button>
+            `;
+            modal.classList.remove("hidden");
+        }
+
+        function addScore(runs) {
+            liveMatchState.runs += runs;
+            liveMatchState.balls += 1;
+            updateScoreDisplays();
+        }
+
+        function addWide() {
+            liveMatchState.runs += 1;
+            updateScoreDisplays();
+            alert("Wide Ball (+1 run added)");
+        }
+
+        function addNoBall() {
+            liveMatchState.runs += 1;
+            updateScoreDisplays();
+            alert("No Ball (+1 run added)");
+        }
+
+        function addWicket() {
+            if (liveMatchState.wickets < 10) {
+                liveMatchState.wickets += 1;
+                liveMatchState.balls += 1;
+                updateScoreDisplays();
+                alert("Wicket fallen! Total wickets: " + liveMatchState.wickets);
+            } else {
+                alert("Inning All Out!");
+            }
+        }
+
+        function updateScoreDisplays() {
+            let ovText = Math.floor(liveMatchState.balls/6) + "." + (liveMatchState.balls%6);
+            let scoreStr = liveMatchState.runs + "-" + liveMatchState.wickets + " (" + ovText + " ov)";
+            
+            let sRuns = document.getElementById("scoreCardRuns");
+            let sOvers = document.getElementById("scoreCardOvers");
+            if (sRuns) sRuns.innerText = liveMatchState.runs + "-" + liveMatchState.wickets;
+            if (sOvers) sOvers.innerText = "Overs: " + ovText + " / " + liveMatchState.maxOvers;
+
+            let feedScore = document.getElementById("feedScoreDisplay");
+            if (feedScore) feedScore.innerHTML = liveMatchState.runs + "-" + liveMatchState.wickets + ` <span style="font-size: 13px; color:#666;">(${ovText} ov)</span>`;
         }
 
         function closeModal() {
