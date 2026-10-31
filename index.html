@@ -99,6 +99,18 @@
             color: #111;
             letter-spacing: 0.5px;
         }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 19px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #d9534f, #ff7672);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
         .header-icons {
             display: flex;
             gap: 15px;
@@ -321,7 +333,7 @@
     <!-- ================= MAIN APP DASHBOARD ================= -->
     <div id="appDashboard" class="hidden">
         <div class="header-top">
-            <span>CRICKPRO</span>
+            <div class="header-brand">🏏 Ashiana Pro</div>
             <div class="header-icons">
                 <span onclick="openSearchModal()">🔍</span>
                 <span onclick="openCreateModal()">➕</span>
