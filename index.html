@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ashiana Cricket - App</title>
+    <title>Ashiana Cricket - Pro App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -82,7 +82,6 @@
             display: none !important;
         }
 
-        /* App Dashboard & Feed Styles matching CricApp UI */
         #appDashboard {
             max-width: 450px;
             margin: 0 auto;
@@ -139,11 +138,7 @@
             font-weight: bold;
             margin: 8px 0;
         }
-        .score {
-            color: #333;
-        }
         
-        /* Account Info Styling */
         .account-info-box {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -164,7 +159,6 @@
             color: #333;
         }
 
-        /* Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -195,7 +189,6 @@
             margin-bottom: 2px;
         }
 
-        /* Modal Overlays for Header Icons & Match Creation */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -216,7 +209,7 @@
             border-top-right-radius: 16px;
             padding: 20px;
             box-sizing: border-box;
-            max-height: 85vh;
+            max-height: 88vh;
             overflow-y: auto;
         }
         .search-header {
@@ -291,7 +284,6 @@
         }
     </style>
 
-    <!-- EmailJS SDK CDN -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
@@ -301,7 +293,7 @@
 </head>
 <body>
 
-    <!-- Auth Container (Signup / Signin) -->
+    <!-- Auth Container -->
     <div class="container" id="authMainContainer">
         <div id="authContainer">
             <h2>Ashiana Cricket</h2>
@@ -311,7 +303,6 @@
                 <button id="signinTabBtn" onclick="switchTab('signin')">Sign In</button>
             </div>
 
-            <!-- SIGN UP FLOW -->
             <div id="signupFlow">
                 <div id="step1_Email">
                     <div class="form-group">
@@ -342,7 +333,6 @@
                 </div>
             </div>
 
-            <!-- SIGN IN FLOW -->
             <div id="signinFlow" class="hidden">
                 <div class="form-group">
                     <label>Gmail / Username:</label>
@@ -357,7 +347,7 @@
         </div>
     </div>
 
-    <!-- ================= MAIN APP DASHBOARD ================= -->
+    <!-- MAIN APP DASHBOARD -->
     <div id="appDashboard" class="hidden">
         <div class="header-top">
             <div class="header-brand">🏏 Ashiana Pro</div>
@@ -368,7 +358,6 @@
             </div>
         </div>
 
-        <!-- TAB 1: FEED (Live matches feed updated dynamically) -->
         <div id="tabContent_feed" class="tab-pane">
             <div id="liveMatchFeedContainer">
                 <div class="feed-card" style="text-align: center; color: #777; padding: 40px 20px;" id="noMatchCard">
@@ -378,7 +367,6 @@
             </div>
         </div>
 
-        <!-- TAB 2: EXPLORE -->
         <div id="tabContent_explore" class="tab-pane hidden">
             <div class="feed-card">
                 <h3 style="margin-top: 0; color: #333;">Explore Tournaments</h3>
@@ -386,32 +374,28 @@
             </div>
         </div>
 
-        <!-- TAB 3: MY CRICKET -->
         <div id="tabContent_mycricket" class="tab-pane hidden">
             <div class="feed-card">
                 <h3 style="margin-top: 0; color: #333;">My Cricket Teams</h3>
                 <p style="color: #666; font-size: 14px;">Apni teams aur match history manage karein.</p>
+                <button class="btn" style="margin-top: 15px;" onclick="openCreateTeamForm()">+ Create New Team</button>
             </div>
         </div>
 
-        <!-- TAB 4: ACCOUNT -->
         <div id="tabContent_account" class="tab-pane hidden">
             <div class="feed-card">
                 <h3 style="margin-top: 0; color: #333;">My Account & Profile</h3>
                 
-                <!-- User Email Info -->
                 <div class="account-info-box">
                     <label>Registered Gmail / Username</label>
                     <p id="accEmailText">-</p>
                 </div>
 
-                <!-- Unique Player ID -->
                 <div class="account-info-box">
                     <label>Unique Player ID (Code)</label>
                     <p id="accPlayerCode" style="color: #d9534f; letter-spacing: 1px;">-</p>
                 </div>
 
-                <!-- Search Player by Code Section -->
                 <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
                     <label style="font-weight: bold; color: #333; margin-bottom: 8px; display: block;">Search Player by ID Code:</label>
                     <div style="display: flex; gap: 8px;">
@@ -421,13 +405,12 @@
                     <div id="searchResultBox" style="margin-top: 10px; font-size: 14px; font-weight: bold;"></div>
                 </div>
 
-                <!-- Logout Button -->
                 <button type="button" class="btn" onclick="handleLogout()" style="background-color: #dc3545; margin-top: 20px;">Log Out</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+    <!-- BOTTOM NAVIGATION BAR -->
     <div class="bottom-nav hidden" id="bottomNav">
         <button class="nav-item active" onclick="switchAppTab('feed', this)">
             <div>📰</div> Feed
@@ -443,11 +426,9 @@
         </button>
     </div>
 
-    <!-- MODAL CONTAINER FOR HEADER ICON ACTIONS -->
+    <!-- MODAL CONTAINER -->
     <div id="dynamicModal" class="modal-overlay hidden" onclick="closeModalOnOutside(event)">
-        <div class="modal-content" id="modalBody">
-            <!-- Dynamic content injected via JS -->
-        </div>
+        <div class="modal-content" id="modalBody"></div>
     </div>
 
     <script>
@@ -455,6 +436,9 @@
             let activeUser = localStorage.getItem("activeUser");
             if (activeUser) {
                 showDashboard(activeUser);
+            }
+            if (!localStorage.getItem("myTeamsList")) {
+                localStorage.setItem("myTeamsList", JSON.stringify(["NEW STAR"]));
             }
         };
 
@@ -479,25 +463,17 @@
                     alert("Meherbani karke pehle apni valid Gmail likhein!");
                     return;
                 }
-
                 let generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-                
                 sessionStorage.setItem("targetEmail", targetEmail);
                 sessionStorage.setItem("generatedOtp", generatedOtpCode);
 
-                var templateParams = {
-                    to_email: targetEmail,
-                    email: targetEmail,
-                    otp: generatedOtpCode
-                };
-
+                var templateParams = { to_email: targetEmail, email: targetEmail, otp: generatedOtpCode };
                 emailjs.send('service_dm0kmzg', 'template_jxznfzg', templateParams)
                     .then(function(response) {
                         alert("OTP code aapki Gmail (" + targetEmail + ") par bhej diya gaya hai!");
                         document.getElementById("step1_Email").classList.add("hidden");
                         document.getElementById("step2_OTP").classList.remove("hidden");
                     }, function(error) {
-                        console.log('FAILED...', error);
                         alert("EmailJS Error: " + JSON.stringify(error));
                     });
             } catch (err) {
@@ -508,7 +484,6 @@
         function verifyOTP() {
             let userEnteredOtp = document.getElementById("enteredOtp").value.trim();
             let savedOtp = sessionStorage.getItem("generatedOtp");
-
             if (userEnteredOtp === savedOtp) {
                 alert("OTP Kamyabi se verify ho gaya hai! Ab apna password set karein.");
                 document.getElementById("step2_OTP").classList.add("hidden");
@@ -527,14 +502,12 @@
                 alert("Meherbani karke dono password fields ko pur karein!");
                 return;
             }
-
             if (pass !== confirmPass) {
                 alert("Dono passwords aapas mein match nahi kar rahe!");
                 return;
             }
 
             let playerCode = "ASH-" + Math.floor(1000 + Math.random() * 9000);
-            
             localStorage.setItem("user_" + targetEmail, pass);
             localStorage.setItem("code_" + targetEmail, playerCode);
             localStorage.setItem("email_by_code_" + playerCode, targetEmail);
@@ -547,7 +520,6 @@
         function handleLogin() {
             let emailInput = document.getElementById("loginEmail").value.trim();
             let passInput = document.getElementById("loginPassword").value;
-
             let savedPassword = localStorage.getItem("user_" + emailInput);
 
             if (savedPassword && savedPassword === passInput) {
@@ -571,7 +543,6 @@
                 localStorage.setItem("email_by_code_" + pCode, email);
             }
             document.getElementById("accPlayerCode").innerText = pCode;
-
             let feedBtn = document.querySelector(".bottom-nav .nav-item");
             switchAppTab('feed', feedBtn);
         }
@@ -579,16 +550,14 @@
         function searchPlayer() {
             let codeQuery = document.getElementById("searchPlayerInput").value.trim().toUpperCase();
             let resultBox = document.getElementById("searchResultBox");
-
             if (!codeQuery) {
                 resultBox.innerText = "Please enter a player code.";
                 return;
             }
-
             let foundEmail = localStorage.getItem("email_by_code_" + codeQuery);
             if (foundEmail) {
                 resultBox.style.color = "#28a745";
-                resultBox.innerText = "Found Player: " + foundEmail;
+                resultBox.innerHTML = `Found Player: ${foundEmail} <button class="btn" style="margin-top:5px; padding:5px; font-size:12px;" onclick="alert('Player added to squad successfully!')">Add to Squad</button>`;
             } else {
                 resultBox.style.color = "#dc3545";
                 resultBox.innerText = "No player found with this code!";
@@ -598,14 +567,10 @@
         function switchAppTab(tabId, btnElement) {
             let panes = document.querySelectorAll(".tab-pane");
             panes.forEach(pane => pane.classList.add("hidden"));
-
             document.getElementById("tabContent_" + tabId).classList.remove("hidden");
-
             let navItems = document.querySelectorAll(".nav-item");
             navItems.forEach(item => item.classList.remove("active"));
-            if (btnElement) {
-                btnElement.classList.add("active");
-            }
+            if (btnElement) btnElement.classList.add("active");
         }
 
         function handleLogout() {
@@ -614,14 +579,13 @@
             location.reload();
         }
 
-        /* Functions for Search, Create, Notifications & Create Match Flow */
         function openSearchModal() {
             let modal = document.getElementById("dynamicModal");
             let body = document.getElementById("modalBody");
             body.innerHTML = `
                 <div class="search-header">
                     <span style="cursor: pointer; font-size: 18px;" onclick="closeModal()">❮</span>
-                    <input type="text" placeholder="Search tournaments, teams, players, leagues" style="padding: 10px; font-size: 14px; margin-bottom: 0;">
+                    <input type="text" placeholder="Search tournaments, teams, players, leagues">
                 </div>
                 <div class="search-tabs">
                     <button class="search-tab-btn active">Tournaments</button>
@@ -631,11 +595,9 @@
                 </div>
                 <div style="font-weight: bold; margin: 15px 0 10px 0; color: #333;">POPULAR</div>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Aioc Flood light</span> <span>↗</span></div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Gorkhana</span> <span>↗</span></div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Master apl tournament</span> <span>↗</span></div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Aijaz</span> <span>↗</span></div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555; cursor: pointer;"><span>📈 Mehran pacer</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555;"><span>📈 Aioc Flood light</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555;"><span>📈 Gorkhana</span> <span>↗</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; color: #555;"><span>📈 Master apl tournament</span> <span>↗</span></div>
                 </div>
             `;
             modal.classList.remove("hidden");
@@ -651,19 +613,14 @@
                     <div style="flex: 1;">Create a Match</div>
                     <span>›</span>
                 </div>
+                <div class="create-option-item" onclick="openCreateTeamForm()">
+                    <span>👥</span>
+                    <div style="flex: 1;">Create Team & Add Squad</div>
+                    <span>›</span>
+                </div>
                 <div class="create-option-item" onclick="alert('Create Tournament clicked')">
                     <span>🏆</span>
                     <div style="flex: 1;">Create Tournament</div>
-                    <span>›</span>
-                </div>
-                <div class="create-option-item" onclick="alert('Create Team clicked')">
-                    <span>👥</span>
-                    <div style="flex: 1;">Create Team</div>
-                    <span>›</span>
-                </div>
-                <div class="create-option-item" onclick="alert('Create Organization clicked')">
-                    <span>🏢</span>
-                    <div style="flex: 1;">Create Organization <div style="font-size: 11px; color: #888; font-weight: normal;">League / Club</div></div>
                     <span>›</span>
                 </div>
                 <button class="btn" style="background: #f1f1f1; color: #333; margin-top: 20px;" onclick="closeModal()">Cancel</button>
@@ -686,6 +643,68 @@
             modal.classList.remove("hidden");
         }
 
+        function openCreateTeamForm() {
+            let modal = document.getElementById("dynamicModal");
+            let body = document.getElementById("modalBody");
+            body.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <span style="cursor: pointer; font-size: 18px;" onclick="closeModal()">❮</span>
+                    <h3 style="margin: 0; color: #333;">Create New Team</h3>
+                </div>
+                <div class="form-group">
+                    <label>Team Name</label>
+                    <input type="text" id="newTeamNameInput" placeholder="e.g. Lahore Shaheen">
+                </div>
+                <div class="form-group">
+                    <label>City / Location</label>
+                    <input type="text" id="newTeamCityInput" placeholder="e.g. Lahore">
+                </div>
+                <div class="form-group">
+                    <label>Search Player by ID Code to Add in Squad (e.g. ASH-4891)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="squadSearchCode" placeholder="Enter Player ID">
+                        <button type="button" class="btn" style="margin-top:0; width:90px; background:#333;" onclick="searchAndAddSquadPlayer()">Add</button>
+                    </div>
+                    <div id="addedSquadList" style="margin-top: 10px; font-size: 13px; color: #28a745; font-weight: bold;">Added Players: None</div>
+                </div>
+                <button class="btn" onclick="saveNewTeam()">Save Team</button>
+            `;
+            modal.classList.remove("hidden");
+        }
+
+        let tempSquad = [];
+        function searchAndAddSquadPlayer() {
+            let code = document.getElementById("squadSearchCode").value.trim().toUpperCase();
+            let foundEmail = localStorage.getItem("email_by_code_" + code);
+            if (foundEmail) {
+                if(!tempSquad.includes(foundEmail)) {
+                    tempSquad.push(foundEmail);
+                    document.getElementById("addedSquadList").innerText = "Added Players: " + tempSquad.join(", ");
+                    alert("Player " + foundEmail + " successfully added to team squad!");
+                } else {
+                    alert("Player already in squad!");
+                }
+            } else {
+                alert("Invalid Player ID code! No user found.");
+            }
+        }
+
+        function saveNewTeam() {
+            let tName = document.getElementById("newTeamNameInput").value.trim();
+            if(!tName) {
+                alert("Please enter team name!");
+                return;
+            }
+            let teams = JSON.parse(localStorage.getItem("myTeamsList") || "[]");
+            if(!teams.includes(tName)) {
+                teams.push(tName);
+                localStorage.setItem("myTeamsList", JSON.stringify(teams));
+            }
+            alert("Team '" + tName + "' created successfully with " + tempSquad.length + " players!");
+            tempSquad = [];
+            closeModal();
+        }
+
         function openCreateMatchForm() {
             let modal = document.getElementById("dynamicModal");
             let body = document.getElementById("modalBody");
@@ -699,123 +718,42 @@
                     <div class="team-select-card" onclick="selectTeam('A')">
                         <div class="team-select-circle">+</div>
                         <div style="font-size: 12px; font-weight: bold; color: #333;" id="selectedTeamA_label">TEAM A</div>
-                        <div style="font-size: 11px; color: #888;">Tap to select · TBD</div>
+                        <div style="font-size: 11px; color: #888;">Tap to select</div>
                     </div>
                     <div style="font-weight: bold; color: #888; font-size: 14px;">VS</div>
                     <div class="team-select-card" onclick="selectTeam('B')">
                         <div class="team-select-circle">+</div>
                         <div style="font-size: 12px; font-weight: bold; color: #333;" id="selectedTeamB_label">TEAM B</div>
-                        <div style="font-size: 11px; color: #888;">Tap to select · TBD</div>
+                        <div style="font-size: 11px; color: #888;">Tap to select</div>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 15px; font-weight: bold; color: #333; font-size: 14px;">Info</div>
-                
                 <div class="form-group">
-                    <label>MATCH FORMAT</label>
-                    <select id="matchFormat">
-                        <option>Limited Overs</option>
-                        <option>Test Match</option>
-                        <option>Pairs</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>OVERS</label>
+                    <label>MATCH FORMAT & OVERS</label>
                     <input type="number" id="matchOvers" value="20">
                 </div>
 
                 <div class="form-group">
-                    <label>MATCH TYPE</label>
-                    <select id="matchType">
-                        <option>Individual Match</option>
-                        <option>Tournament Match</option>
-                    </select>
-                </div>
-
-                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Schedule</div>
-                <div class="form-group">
-                    <label>DATE & TIME</label>
-                    <input type="text" value="Oct 31, 2026, 11:00 AM" readonly>
-                </div>
-
-                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Venue</div>
-                <div class="form-group">
-                    <label>GROUND</label>
+                    <label>GROUND / VENUE</label>
                     <select id="matchGround">
-                        <option>Choose Ground (e.g. Ashiana Ground)</option>
-                        <option>5 LDA City Rd</option>
-                        <option>Ashiana-e-Quaid Housing Scheme</option>
-                        <option>Al-Bilal Cricket Club</option>
-                        <option>Ali's House</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>PITCH TYPE</label>
-                    <select id="matchPitch">
-                        <option>Astroturf</option>
-                        <option>Matting</option>
-                        <option>Concrete</option>
-                        <option>Turf</option>
+                        <option>Ashiana Cricket Ground, Lahore</option>
+                        <option>5 LDA City Ground</option>
+                        <option>Al-Bilal Cricket Ground</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>BALL TYPE</label>
                     <select id="matchBall">
-                        <option>Leather</option>
                         <option>Tape Ball</option>
-                        <option>Tennis Ball</option>
+                        <option>Leather Ball</option>
+                        <option>Hard Tennis Ball</option>
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label>POWERPLAY</label>
-                    <select>
-                        <option>1 Selected</option>
-                        <option>2 Selected</option>
-                    </select>
-                </div>
-
-                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Officials</div>
-                <div class="form-group">
-                    <label>MATCH OFFICIALS</label>
-                    <select>
-                        <option>Choose Officials</option>
-                    </select>
-                </div>
-
-                <div style="margin: 15px 0 5px 0; font-weight: bold; color: #333; font-size: 14px;">Advanced</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 6px;">
-                    <span style="font-size: 14px; color: #333; font-weight: bold;">Advanced Settings</span>
-                    <input type="checkbox" id="advToggle" style="width: 20px; height: 20px; accent-color: #d9534f;" onchange="toggleAdvanced(this)">
-                </div>
-
-                <div id="advancedFields" class="hidden">
-                    <div class="form-group">
-                        <label>BALLS PER OVER</label>
-                        <input type="number" id="ballsPerOver" value="6">
-                    </div>
-                    <div class="form-group">
-                        <label>WICKETS PER INNINGS</label>
-                        <select id="wicketsPerInnings">
-                            <option>10 wickets</option>
-                            <option>3 wickets</option>
-                            <option>4 wickets</option>
-                            <option>5 wickets</option>
-                            <option>6 wickets</option>
-                            <option>7 wickets</option>
-                            <option>8 wickets</option>
-                            <option>9 wickets</option>
-                            <option>11 wickets</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn" style="background: #f1f1f1; color: #333; margin-top: 0;" onclick="closeModal()">Schedule</button>
-                    <button class="btn" style="margin-top: 0;" onclick="startTossFlow()">Start Now</button>
+                    <button class="btn" style="margin-top: 0;" onclick="startTossFlow()">Start Match & Toss</button>
                 </div>
             `;
         }
@@ -823,42 +761,18 @@
         let currentMatchData = { teamA: 'TEAM A', teamB: 'TEAM B', overs: 20 };
 
         function selectTeam(teamType) {
+            let teams = JSON.parse(localStorage.getItem("myTeamsList") || '["NEW STAR", "STRIKER FORCE II", "GHAZI XI", "QLANDER HEROS"]');
             let body = document.getElementById("modalBody");
-            if (teamType === 'A') {
-                body.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                        <span style="cursor: pointer; font-size: 18px;" onclick="openCreateMatchForm()">❮</span>
-                        <h3 style="margin: 0; color: #333;">Select Team A</h3>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                        <button class="search-tab-btn active" style="flex: 1;">My Teams</button>
-                        <button class="search-tab-btn" style="flex: 1; background: #fff;" onclick="alert('Opponents tab')">Opponents</button>
-                    </div>
-                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="setTeamName('A', 'NEW STAR')">
-                        <span style="font-size: 20px;">🛡️</span>
-                        <div style="font-weight: bold; color: #333;">NEW STAR</div>
-                    </div>
-                `;
-            } else {
-                body.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                        <span style="cursor: pointer; font-size: 18px;" onclick="openCreateMatchForm()">❮</span>
-                        <h3 style="margin: 0; color: #333;">Select Team B</h3>
-                    </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                        <button class="search-tab-btn" style="flex: 1; background: #fff;" onclick="alert('My Teams tab')">My Teams</button>
-                        <button class="search-tab-btn active" style="flex: 1;">Opponents</button>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'STRIKER FORCE II')">STRIKER FORCE II</div>
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'GHAZI XI')">GHAZI XI</div>
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'QLANDER HEROS')">QLANDER HEROS</div>
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'VICTORIOUS CRICKET CLUB')">VICTORIOUS CRICKET CLUB</div>
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'KOTLAKHPAT TITANS')">KOTLAKHPAT TITANS</div>
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer;" onclick="setTeamName('B', 'GAZA FIGHTERS')">GAZA FIGHTERS</div>
-                    </div>
-                `;
-            }
+            let listHtml = teams.map(t => `<div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-weight: bold; color: #333; cursor: pointer; margin-bottom:8px;" onclick="setTeamName('${teamType}', '${t}')">${t}</div>`).join('');
+            
+            body.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <span style="cursor: pointer; font-size: 18px;" onclick="openCreateMatchForm()">❮</span>
+                    <h3 style="margin: 0; color: #333;">Select Team ${teamType}</h3>
+                </div>
+                ${listHtml}
+                <button class="btn" style="background:#333; margin-top:10px;" onclick="openCreateTeamForm()">+ Add New Team</button>
+            `;
         }
 
         function setTeamName(teamType, name) {
@@ -872,15 +786,6 @@
                 document.getElementById("selectedTeamA_label").innerText = name;
             } else {
                 document.getElementById("selectedTeamB_label").innerText = name;
-            }
-        }
-
-        function toggleAdvanced(checkbox) {
-            let advFields = document.getElementById("advancedFields");
-            if (checkbox.checked) {
-                advFields.classList.remove("hidden");
-            } else {
-                advFields.classList.add("hidden");
             }
         }
 
@@ -925,8 +830,8 @@
             runs: 0,
             wickets: 0,
             balls: 0,
-            overs: 0,
-            maxOvers: 20
+            maxOvers: 20,
+            history: [] // Undo ke liye history array
         };
 
         function launchLiveScoring(decision) {
@@ -945,7 +850,7 @@
             liveMatchState.runs = 0;
             liveMatchState.wickets = 0;
             liveMatchState.balls = 0;
-            liveMatchState.overs = 0;
+            liveMatchState.history = [];
 
             closeModal();
             renderLiveFeedCard();
@@ -972,13 +877,21 @@
             `;
         }
 
+        function saveStateToHistory() {
+            liveMatchState.history.push({
+                runs: liveMatchState.runs,
+                wickets: liveMatchState.wickets,
+                balls: liveMatchState.balls
+            });
+        }
+
         function openScoringDashboard() {
             let modal = document.getElementById("dynamicModal");
             let body = document.getElementById("modalBody");
             
             body.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span style="font-weight: bold; color: #d9534f;">● LIVE SCORING</span>
+                    <span style="font-weight: bold; color: #d9534f;">● LIVE SCORING & RULES</span>
                     <span style="cursor: pointer; font-size: 18px; font-weight: bold;" onclick="closeModal()">✕</span>
                 </div>
                 
@@ -988,57 +901,70 @@
                     <p style="margin: 0; color: #666; font-size: 14px;" id="scoreCardOvers">Overs: ${Math.floor(liveMatchState.balls/6)}.${liveMatchState.balls%6} / ${liveMatchState.maxOvers}</p>
                 </div>
 
-                <div style="font-weight: bold; color: #333; margin-bottom: 8px; text-align: center;">Ball-by-Ball Control Panel</div>
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
-                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(0)">0</button>
-                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(1)">1</button>
-                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(2)">2</button>
-                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(3)">3</button>
-                    <button class="btn" style="margin-top:0; background:#d9534f;" onclick="addScore(4)">4 (Boundary)</button>
-                    <button class="btn" style="margin-top:0; background:#d9534f;" onclick="addScore(6)">6 (Six)</button>
-                    <button class="btn" style="margin-top:0; background:#f0ad4e;" onclick="addWide()">Wide</button>
-                    <button class="btn" style="margin-top:0; background:#f0ad4e;" onclick="addNoBall()">No Ball</button>
+                <div style="font-weight: bold; color: #333; margin-bottom: 8px; text-align: center;">Scoring Rules & Controls</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;">
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(0, true)">0</button>
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(1, true)">1</button>
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(2, true)">2</button>
+                    <button class="btn" style="margin-top:0; background:#333;" onclick="addScore(3, true)">3</button>
+                    <button class="btn" style="margin-top:0; background:#d9534f;" onclick="addScore(4, true)">4</button>
+                    <button class="btn" style="margin-top:0; background:#d9534f;" onclick="addScore(6, true)">6</button>
+                    <button class="btn" style="margin-top:0; background:#f0ad4e;" onclick="addExtra('Wide', 1, false)">Wide</button>
+                    <button class="btn" style="margin-top:0; background:#f0ad4e;" onclick="addExtra('No Ball', 1, false)">No Ball</button>
                 </div>
 
-                <button class="btn" style="background: #dc3545; margin-bottom: 10px;" onclick="addWicket()">Wicket Fallen ☝️</button>
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <button class="btn" style="background: #dc3545; margin-top: 0; flex: 1;" onclick="addWicket()">Wicket ☝️</button>
+                    <button class="btn" style="background: #6c757d; margin-top: 0; flex: 1;" onclick="undoLastBall()">⌫ Undo Last</button>
+                </div>
+
                 <button class="btn" style="background: #f1f1f1; color: #333;" onclick="closeModal()">Minimize Scoring</button>
             `;
             modal.classList.remove("hidden");
         }
 
-        function addScore(runs) {
+        function addScore(runs, countBall) {
+            saveStateToHistory();
             liveMatchState.runs += runs;
-            liveMatchState.balls += 1;
+            if (countBall) liveMatchState.balls += 1;
             updateScoreDisplays();
         }
 
-        function addWide() {
-            liveMatchState.runs += 1;
+        function addExtra(type, extraRuns, countBall) {
+            saveStateToHistory();
+            liveMatchState.runs += extraRuns;
+            if (countBall) liveMatchState.balls += 1;
             updateScoreDisplays();
-            alert("Wide Ball (+1 run added)");
-        }
-
-        function addNoBall() {
-            liveMatchState.runs += 1;
-            updateScoreDisplays();
-            alert("No Ball (+1 run added)");
+            alert(type + " (+ " + extraRuns + " run)");
         }
 
         function addWicket() {
             if (liveMatchState.wickets < 10) {
+                saveStateToHistory();
                 liveMatchState.wickets += 1;
                 liveMatchState.balls += 1;
                 updateScoreDisplays();
                 alert("Wicket fallen! Total wickets: " + liveMatchState.wickets);
             } else {
-                alert("Inning All Out!");
+                alert("Innings All Out!");
+            }
+        }
+
+        function undoLastBall() {
+            if (liveMatchState.history.length > 0) {
+                let lastState = liveMatchState.history.pop();
+                liveMatchState.runs = lastState.runs;
+                liveMatchState.wickets = lastState.wickets;
+                liveMatchState.balls = lastState.balls;
+                updateScoreDisplays();
+                alert("Last ball action undone successfully!");
+            } else {
+                alert("No previous action to undo!");
             }
         }
 
         function updateScoreDisplays() {
             let ovText = Math.floor(liveMatchState.balls/6) + "." + (liveMatchState.balls%6);
-            let scoreStr = liveMatchState.runs + "-" + liveMatchState.wickets + " (" + ovText + " ov)";
-            
             let sRuns = document.getElementById("scoreCardRuns");
             let sOvers = document.getElementById("scoreCardOvers");
             if (sRuns) sRuns.innerText = liveMatchState.runs + "-" + liveMatchState.wickets;
@@ -1058,6 +984,5 @@
             }
         }
     </script>
-
 </body>
 </html>
